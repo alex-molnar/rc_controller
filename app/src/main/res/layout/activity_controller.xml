@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Controller">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="64dp"
+        app:layout_constraintHeight_percent="0.35"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <Button
+            android:id="@+id/backwardButton"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/ic_keyboard_arrow_down_blue_24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintWidth_percent="0.33" />
+
+        <Button
+            android:id="@+id/forwardButton"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/ic_keyboard_arrow_up_blue_24dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.33" />
+
+        <Button
+            android:id="@+id/leftButton"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/ic_keyboard_arrow_left_blue_24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/backwardButton"
+            app:layout_constraintHeight_percent="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintWidth_percent="0.33" />
+
+        <Button
+            android:id="@+id/rightButton"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/ic_keyboard_arrow_right_blue_24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.5"
+            app:layout_constraintStart_toEndOf="@+id/backwardButton"
+            app:layout_constraintWidth_percent="0.33" />
+
+        <Switch
+            android:id="@+id/reverseSwitch"
+            android:layout_width="53dp"
+            android:layout_height="123dp"
+            android:layout_marginEnd="10dp"
+            android:switchTextAppearance="@style/TextAppearance.AppCompat.Display4"
+            android:theme="@style/SwitchCompatTheme"
+            app:layout_constraintBottom_toTopOf="@+id/leftButton"
+            app:layout_constraintEnd_toStartOf="@+id/forwardButton"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="62dp"
+            android:layout_height="85dp"
+            android:text="R"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/holo_red_light"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/leftButton"
+            app:layout_constraintEnd_toStartOf="@+id/reverseSwitch"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/hornButton"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginBottom="32dp"
+            android:background="@drawable/ic_horn_svgrepo_com"
+            app:layout_constraintBottom_toTopOf="@+id/rightButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/forwardButton"
+            app:layout_constraintTop_toTopOf="@+id/forwardButton" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="32dp"
+        app:layout_constraintBottom_toTopOf="@+id/constraintLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.25"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ToggleButton
+            android:id="@+id/lightSwitch"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/ic_highlight_off_24dp"
+            android:textOff="@string/empty_string"
+            android:textOn="@string/empty_string"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintWidth_percent="0.3" />
+
+        <ToggleButton
+            android:id="@+id/hazardWarning"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/ic_warning_off_24dp"
+            android:textOff="@string/empty_string"
+            android:textOn="@string/empty_string"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.3" />
+
+        <Switch
+            android:id="@+id/rightIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:theme="@style/indicatorTheme"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/lightSwitch"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Switch
+            android:id="@+id/leftIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:theme="@style/indicatorTheme"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/lightSwitch"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="32dp"
+        app:layout_constraintBottom_toTopOf="@+id/constraintLayout2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/distanceLabel"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="32dp"
+            android:gravity="center"
+            android:text="@string/distance_text"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="@color/colorPrimary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/lineLabel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.33" />
+
+        <TextView
+            android:id="@+id/speedLabel"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="32dp"
+            android:gravity="center"
+            android:text="@string/speed_text"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="@color/colorPrimary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/lineLabel"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.33" />
+
+        <ImageView
+            android:id="@+id/lineLabel"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.2"
+            app:srcCompat="@drawable/ic_more_vert_white_24dp" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

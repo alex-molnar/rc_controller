@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">RC Controller</string>
+    <string name="title_activity_camera">CameraActivity</string>
+    <string name="host">Host</string>
+    <string name="port">Port</string>
+    <string name="password">Password</string>
+    <string name="connect">Connect</string>
+    <string name="empty_string"> </string>
+    <string name="distance_text">Distance: </string>
+    <string name="distance_measure">cm</string>
+    <string name="speed_text">Speed: </string>
+    <string name="speed_measure">km/h</string>
+    <string name="dark_mode">Dark Theme</string>
+</resources>

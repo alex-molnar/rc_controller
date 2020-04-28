@@ -1,0 +1,35 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorControlNormal">@color/colorControlNormal</item>
+        <item name="android:textColorHint">@color/colorControlNormal</item>
+        <item name="android:windowBackground">@color/colorBackground</item>
+        <item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
+    </style>
+
+    <style name="AppThemeDark" parent="Theme.AppCompat">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
+    </style>
+    
+    <style name="WindowAnimationTransition">
+        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+    </style>
+
+    <style name="floatingInput" parent="AppTheme">
+        <item name="android:colorForeground">@color/colorControlNormal</item>
+    </style>
+
+    <style name="SwitchCompatTheme">
+        <item name="colorControlActivated">@color/pure_red</item>
+    </style>
+
+    <style name="indicatorTheme">
+        <item name="colorControlActivated">@color/indicatorON</item>
+    </style>
+
+</resources>
