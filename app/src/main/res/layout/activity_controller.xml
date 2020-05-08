@@ -62,30 +62,6 @@
             app:layout_constraintStart_toEndOf="@+id/backwardButton"
             app:layout_constraintWidth_percent="0.33" />
 
-        <Switch
-            android:id="@+id/reverseSwitch"
-            android:layout_width="53dp"
-            android:layout_height="123dp"
-            android:layout_marginEnd="10dp"
-            android:switchTextAppearance="@style/TextAppearance.AppCompat.Display4"
-            android:theme="@style/SwitchCompatTheme"
-            app:layout_constraintBottom_toTopOf="@+id/leftButton"
-            app:layout_constraintEnd_toStartOf="@+id/forwardButton"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="62dp"
-            android:layout_height="85dp"
-            android:text="R"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-            android:textColor="@android:color/holo_red_light"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@+id/leftButton"
-            app:layout_constraintEnd_toStartOf="@+id/reverseSwitch"
-            app:layout_constraintStart_toStartOf="parent" />
-
         <Button
             android:id="@+id/hornButton"
             android:layout_width="0dp"
@@ -99,6 +75,22 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/forwardButton"
             app:layout_constraintTop_toTopOf="@+id/forwardButton" />
+
+        <ToggleButton
+            android:id="@+id/reverseSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/colorBackground"
+            android:text="@string/r_string"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display3"
+            android:textColor="@color/lightOFF"
+            android:textOff="@string/r_string"
+            android:textOn="@string/r_string"
+            android:stateListAnimator="@null"
+            app:layout_constraintBottom_toTopOf="@+id/leftButton"
+            app:layout_constraintEnd_toStartOf="@+id/forwardButton"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -140,26 +132,36 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_percent="0.3" />
 
-        <Switch
-            android:id="@+id/rightIndicator"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:theme="@style/indicatorTheme"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/lightSwitch"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <Switch
+        <ToggleButton
             android:id="@+id/leftIndicator"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:theme="@style/indicatorTheme"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="48dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginBottom="48dp"
+            android:background="@drawable/indicator_off_24dp"
+            android:textOff="@string/empty_string"
+            android:textOn="@string/empty_string"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/lightSwitch"
+            app:layout_constraintEnd_toStartOf="@+id/hazardWarning"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <ToggleButton
+            android:id="@+id/rightIndicator"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="48dp"
+            android:layout_marginBottom="48dp"
+            android:background="@drawable/indicator_off_24dp"
+            android:textOff="@string/empty_string"
+            android:textOn="@string/empty_string"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/hazardWarning"
+            app:layout_constraintTop_toTopOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -176,39 +178,37 @@
             android:id="@+id/distanceLabel"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="16dp"
+            android:layout_marginStart="8dp"
             android:layout_marginTop="32dp"
-            android:layout_marginEnd="16dp"
             android:layout_marginBottom="32dp"
             android:gravity="center"
             android:text="@string/distance_text"
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textColor="@color/colorPrimary"
+            android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/lineLabel"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent="0.33" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/speedLabel"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="16dp"
             android:layout_marginTop="32dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginEnd="8dp"
             android:layout_marginBottom="32dp"
             android:gravity="center"
             android:text="@string/speed_text"
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textColor="@color/colorPrimary"
+            android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/lineLabel"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent="0.33" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/lineLabel"
@@ -216,11 +216,12 @@
             android:layout_height="0dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
+            android:contentDescription="@string/line_label_desc"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent="0.2"
+            app:layout_constraintWidth_percent="0.1"
             app:srcCompat="@drawable/ic_more_vert_white_24dp" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 

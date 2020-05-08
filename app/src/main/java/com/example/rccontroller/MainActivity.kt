@@ -57,9 +57,9 @@ class MainActivity : AppCompatActivity() {
     private val onConnectClicked = View.OnClickListener { view ->
         thread {
             Channel.connect(
-                host.text.toString(),
-                port.text.toString().toInt(),
-                password.text.toString()
+                "192.168.1.11",//host.text.toString(),
+                8000 + port.text.toString().toInt(),
+                "69420" //password.text.toString()
             ) { result ->
                 if(result) {
                     val intentController = Intent(this, Controller::class.java)
@@ -76,7 +76,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun resetTheme(): Unit {
+    private fun resetTheme() {
         if (AppSettings.darkTheme) {
             setTheme(R.style.AppThemeDark)
         }
@@ -85,12 +85,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setTextColors(): Unit {
+    private fun setTextColors() {
         if (AppSettings.darkTheme) {
-            host.setTextColor(resources.getColor(R.color.colorBackground))
-            port.setTextColor(resources.getColor(R.color.colorBackground))
-            password.setTextColor(resources.getColor(R.color.colorBackground))
-            connectButton.setTextColor(resources.getColor((R.color.colorBackground)))
+            host.setTextColor(getColor(R.color.colorBackground))
+            port.setTextColor(getColor(R.color.colorBackground))
+            password.setTextColor(getColor(R.color.colorBackground))
+            connectButton.setTextColor(getColor((R.color.colorBackground)))
         }
     }
 }

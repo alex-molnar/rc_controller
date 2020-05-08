@@ -8,7 +8,8 @@ import java.net.Socket
 import java.nio.charset.Charset
 import java.security.MessageDigest
 import java.util.*
-import kotlin.collections.HashMap
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.thread
 
 object Channel {
     private var sendingSocket: Socket? = null
@@ -19,16 +20,17 @@ object Channel {
     private var receivingSocketReader: Scanner? = null
 
     private val dataTable = JSONObject()
-    private val messageTable = JSONObject()
 
-    var state: Boolean = true
+    private val lock = ReentrantLock()
+
+    var isConnectionActive: Boolean = true
     var errorMessage: String? = null
 
     fun connect(
         host: String,
         port: Int,
         password: String,
-        callback: (Boolean) -> Unit): Unit {
+        callback: (Boolean) -> Unit) {
 
         var result = true
         try {
@@ -45,10 +47,7 @@ object Channel {
                 )
             )
 
-            if (receivingSocketReader!!.nextLine() == "GRANTED") {
-                println("GRAAAAANTEEEEEEEEEED")
-            }
-            else {
+            if (receivingSocketReader!!.nextLine() != "GRANTED") {
                 errorMessage = "Access DENIED"
                 result = false
             }
@@ -60,15 +59,77 @@ object Channel {
         callback(result)
     }
 
-    fun tmpSend(): Unit {
-//        messageTable.put("FORWARD", true)
-//        messageTable.put("BACKWARD", false)
-//        messageTable.put("LIGHTS", true)
-//        sendingSocketWriter!!.write(messageTable.toString().toByteArray(Charset.defaultCharset()))
-//        val received = (JSONTokener(receivingSocketReader!!.nextLine()).nextValue() as JSONObject)
-//        received.keys().forEach { key ->
-//            dataTable.put(key, received.getBoolean(key))
-//        }
-//        println(dataTable.toString(4))
+    fun setMessage(key: String, value: Boolean) {
+        lock.lock()
+        try {
+            dataTable.put(key, value)
+            sendingSocketWriter!!.write(dataTable.toString().toByteArray(Charset.defaultCharset()))
+        }
+        catch (e: Exception) {
+            println(e.message)
+        }
+        finally {
+            lock.unlock()
+        }
+    }
+
+    fun getBoolean(key: String): Boolean {
+        lock.lock()
+        var value = false
+        try {
+            value = dataTable.optBoolean(key, false)
+        }
+        catch (e: Exception) {
+            println(e.message)
+        }
+        finally {
+            lock.unlock()
+        }
+        return value
+    }
+
+    fun getDouble(key: String, fallback: Double): Double {
+        lock.lock()
+        var value = fallback
+        try {
+            value = dataTable.optDouble(key, fallback)
+        }
+        catch (e: Exception) {
+            println(e.message)
+        }
+        finally {
+            lock.unlock()
+        }
+        return value
+    }
+
+    fun run() {
+        while (isConnectionActive) {
+            val received = (JSONTokener(receivingSocketReader!!.nextLine()).nextValue() as JSONObject)
+            try {
+                lock.lock()
+                received.keys().forEach { key ->
+                    if (key == "distance" || key == "speed") {
+                        dataTable.put(key, received.getDouble(key))
+                    }
+                    else {
+                        dataTable.put(key, received.getBoolean(key))
+                    }
+                }
+            }
+            catch (e: Exception) {
+                println(e.message)
+            }
+            finally {
+                lock.unlock()
+                receivingSocketWriter!!.write("Done.".toByteArray(Charset.defaultCharset()))
+            }
+        }
+    }
+
+    fun stop() {
+        isConnectionActive = false
+        sendingSocket!!.close()
+        receivingSocket!!.close()
     }
 }

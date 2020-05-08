@@ -11,4 +11,6 @@
     <string name="speed_text">Speed: </string>
     <string name="speed_measure">km/h</string>
     <string name="dark_mode">Dark Theme</string>
+    <string name="r_string">R</string>
+    <string name="line_label_desc">Line label</string>
 </resources>
