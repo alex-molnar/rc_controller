@@ -22,7 +22,7 @@
     </style>
 
     <style name="floatingInput" parent="AppTheme">
-        <item name="android:colorForeground">@color/colorControlNormal</item>
+        <item name="android:colorForeground">@color/colorBackground</item>
     </style>
 
     <style name="SwitchCompatTheme">

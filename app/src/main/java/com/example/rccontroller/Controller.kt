@@ -1,11 +1,6 @@
 package com.example.rccontroller
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.Message
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.widget.CompoundButton
 import androidx.appcompat.app.AppCompatActivity
@@ -16,24 +11,14 @@ import kotlin.concurrent.thread
 
 class Controller : AppCompatActivity() {
 
-    val DOWN_EVENT = 0
-    val UP_EVENT   = 1
+    private val downEvent = 0
+    private val upEvent = 1
 
-    val states: JSONObject = JSONObject()
+    private val states: JSONObject = JSONObject()
 
-    var isActive: Boolean = true
-
-    private var mHandler = object : Handler(Looper.getMainLooper()) {
-        override fun handleMessage(message: Message?) {
-//            reverseSwitch.isChecked = Channel.getValue(hasher(resources.getResourceEntryName(reverseSwitch.id)))
-//            leftIndicator.isChecked = Channel.getValue(hasher(resources.getResourceEntryName(leftIndicator.id)))
-//            rightIndicator.isChecked = Channel.getValue(hasher(resources.getResourceEntryName(rightIndicator.id)))
-        }
-    }
+    private var isActive: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        resetTheme()
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_controller)
 
@@ -42,7 +27,6 @@ class Controller : AppCompatActivity() {
         }
 
         thread {
-            setTextColors()
             setEventListeners()
             listen()
         }
@@ -52,54 +36,6 @@ class Controller : AppCompatActivity() {
         isActive = false
         Channel.stop()
         super.onStop()
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.main, menu)
-        return true
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
-        val menuItem = menu?.findItem(R.id.action_theme_switch)
-        if (menuItem != null) {
-            if (AppSettings.darkTheme) {
-                menuItem.icon = getDrawable(R.drawable.ic_brightness_7_24dp)
-                reverseSwitch.background = getDrawable(R.color.colorBackgroundDark)
-            }
-            else {
-                menuItem.icon = getDrawable(R.drawable.ic_brightness_2_grey_24dp)
-                reverseSwitch.background = getDrawable(R.color.colorBackground)
-            }
-        }
-        return super.onPrepareOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_theme_switch -> {
-                AppSettings.darkTheme = !AppSettings.darkTheme
-                recreate()
-                invalidateOptionsMenu()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
-    private fun resetTheme() {
-        if (AppSettings.darkTheme) {
-            setTheme(R.style.AppThemeDark)
-        }
-        else {
-            setTheme(R.style.AppTheme)
-        }
-    }
-
-    private fun setTextColors() {
-        if (AppSettings.darkTheme) {
-            distanceLabel.setTextColor(getColor(R.color.colorBackground))
-            speedLabel.setTextColor(getColor(R.color.colorBackground))
-        }
     }
 
     private fun setEventListeners() {
@@ -232,12 +168,8 @@ class Controller : AppCompatActivity() {
             }
             else if (distance < 25) {
                 distanceLabel.setTextColor(getColor(R.color.indicatorON))
-            }
-            else if (AppSettings.darkTheme) {
+            } else {
                 distanceLabel.setTextColor(getColor(R.color.colorBackground))
-            }
-            else {
-                distanceLabel.setTextColor(getColor(R.color.colorPrimary))
             }
 
             val speed = Channel.getDouble(speedString, 0.0)
@@ -248,23 +180,23 @@ class Controller : AppCompatActivity() {
             }
             else if (speed > 20) {
                 speedLabel.setTextColor(getColor(R.color.indicatorON))
-            }
-            else if (AppSettings.darkTheme) {
+            } else {
                 speedLabel.setTextColor(getColor(R.color.colorBackground))
-            }
-            else {
-                speedLabel.setTextColor(getColor(R.color.colorPrimary))
             }
         }
     }
 
     private val touchEvent = View.OnTouchListener { view, event ->
         thread {
-            if (event.action == DOWN_EVENT && !states.optBoolean(resources.getResourceEntryName(view.id))) {
+            if (event.action == downEvent && !states.optBoolean(resources.getResourceEntryName(view.id))) {
                 Channel.setMessage(hasher(resources.getResourceEntryName(view.id)), true)
                 states.put(resources.getResourceEntryName(view.id), true)
-            }
-            else if (event.action == UP_EVENT && states.optBoolean(resources.getResourceEntryName(view.id))) {
+            } else if (event.action == upEvent && states.optBoolean(
+                    resources.getResourceEntryName(
+                        view.id
+                    )
+                )
+            ) {
                 Channel.setMessage(hasher(resources.getResourceEntryName(view.id)), false)
                 states.put(resources.getResourceEntryName(view.id), false)
             }
@@ -273,7 +205,7 @@ class Controller : AppCompatActivity() {
     }
 
     private val toggleEvent = View.OnTouchListener { view, event ->
-        if (event.action == DOWN_EVENT){
+        if (event.action == downEvent) {
             view as CompoundButton
             thread {
                 Channel.setMessage(hasher(resources.getResourceEntryName(view.id)), !view.isChecked)
