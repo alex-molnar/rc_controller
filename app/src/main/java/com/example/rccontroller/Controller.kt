@@ -194,9 +194,13 @@ class Controller : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val id = hashes(resources.getResourceEntryName(item.itemId))
-        thread {
-            Channel.setMessage(id, !Channel.getBoolean(id))
+        if (item.itemId == R.id.exitItem) {
+            finishAndRemoveTask()
+        } else {
+            val id = hashes(resources.getResourceEntryName(item.itemId))
+            thread {
+                Channel.setMessage(id, !Channel.getBoolean(id))
+            }
         }
         return true
     }

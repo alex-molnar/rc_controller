@@ -16,4 +16,5 @@
     <string name="distance_keeping">Keep Distance</string>
     <string name="keep_contained">Keep Contained</string>
     <string name="change_direction">Change Turning Direction</string>
+    <string name="exit">Exit Application</string>
 </resources>

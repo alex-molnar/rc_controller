@@ -10,4 +10,7 @@
     <item
         android:id="@+id/changeDirectionItem"
         android:title="@string/change_direction" />
+    <item
+        android:id="@+id/exitItem"
+        android:title="@string/exit" />
 </menu>
