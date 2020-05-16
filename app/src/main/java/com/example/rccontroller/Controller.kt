@@ -1,6 +1,8 @@
 package com.example.rccontroller
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.CompoundButton
 import androidx.appcompat.app.AppCompatActivity
@@ -53,18 +55,18 @@ class Controller : AppCompatActivity() {
 
     private fun listen() {
         while (isActive) {
-            val forwardString = hasher(resources.getResourceEntryName(forwardButton.id))
-            val backwardString = hasher(resources.getResourceEntryName(backwardButton.id))
-            val leftString = hasher(resources.getResourceEntryName(leftButton.id))
-            val rightString = hasher(resources.getResourceEntryName(rightButton.id))
-            val lightString = hasher(resources.getResourceEntryName(lightSwitch.id))
-            val hazardString = hasher(resources.getResourceEntryName(hazardWarning.id))
-            val leftIndicatorString = hasher(resources.getResourceEntryName(leftIndicator.id))
-            val rightIndicatorString = hasher(resources.getResourceEntryName(rightIndicator.id))
-            val reverseString = hasher(resources.getResourceEntryName(reverseSwitch.id))
-            val distanceString = hasher(resources.getResourceEntryName(distanceLabel.id))
-            val speedString = hasher(resources.getResourceEntryName(speedLabel.id))
-            val lineString = hasher(resources.getResourceEntryName(lineLabel.id))
+            val forwardString = hashes(resources.getResourceEntryName(forwardButton.id))
+            val backwardString = hashes(resources.getResourceEntryName(backwardButton.id))
+            val leftString = hashes(resources.getResourceEntryName(leftButton.id))
+            val rightString = hashes(resources.getResourceEntryName(rightButton.id))
+            val lightString = hashes(resources.getResourceEntryName(lightSwitch.id))
+            val hazardString = hashes(resources.getResourceEntryName(hazardWarning.id))
+            val leftIndicatorString = hashes(resources.getResourceEntryName(leftIndicator.id))
+            val rightIndicatorString = hashes(resources.getResourceEntryName(rightIndicator.id))
+            val reverseString = hashes(resources.getResourceEntryName(reverseSwitch.id))
+            val distanceString = hashes(resources.getResourceEntryName(distanceLabel.id))
+            val speedString = hashes(resources.getResourceEntryName(speedLabel.id))
+            val lineString = hashes(resources.getResourceEntryName(lineLabel.id))
 
             if (Channel.getBoolean(forwardString) && !states.optBoolean(forwardString)) {
                 states.put(forwardString, true)
@@ -186,10 +188,23 @@ class Controller : AppCompatActivity() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val id = hashes(resources.getResourceEntryName(item.itemId))
+        thread {
+            Channel.setMessage(id, !Channel.getBoolean(id))
+        }
+        return true
+    }
+
     private val touchEvent = View.OnTouchListener { view, event ->
         thread {
             if (event.action == downEvent && !states.optBoolean(resources.getResourceEntryName(view.id))) {
-                Channel.setMessage(hasher(resources.getResourceEntryName(view.id)), true)
+                Channel.setMessage(hashes(resources.getResourceEntryName(view.id)), true)
                 states.put(resources.getResourceEntryName(view.id), true)
             } else if (event.action == upEvent && states.optBoolean(
                     resources.getResourceEntryName(
@@ -197,7 +212,7 @@ class Controller : AppCompatActivity() {
                     )
                 )
             ) {
-                Channel.setMessage(hasher(resources.getResourceEntryName(view.id)), false)
+                Channel.setMessage(hashes(resources.getResourceEntryName(view.id)), false)
                 states.put(resources.getResourceEntryName(view.id), false)
             }
         }
@@ -208,27 +223,30 @@ class Controller : AppCompatActivity() {
         if (event.action == downEvent) {
             view as CompoundButton
             thread {
-                Channel.setMessage(hasher(resources.getResourceEntryName(view.id)), !view.isChecked)
+                Channel.setMessage(hashes(resources.getResourceEntryName(view.id)), !view.isChecked)
             }
         }
         false
     }
 
-    private fun hasher(key: String): String {
+    private fun hashes(key: String): String {
         return when(key) {
-            "forwardButton"     -> "forward"
-            "backwardButton"    -> "backward"
-            "leftButton"        -> "turn_left"
-            "rightButton"       -> "turn_right"
-            "hornButton"        -> "horn"
-            "lightSwitch"       -> "lights"
-            "reverseSwitch"     -> "reverse"
-            "hazardWarning"     -> "hazard_warning"
-            "leftIndicator"     -> "left_indicator"
-            "rightIndicator"    -> "right_indicator"
-            "distanceLabel"     -> "distance"
-            "speedLabel"        -> "speed"
-            "lineLabel"         -> "line"
+            "forwardButton" -> "forward"
+            "backwardButton" -> "backward"
+            "leftButton" -> "turn_left"
+            "rightButton" -> "turn_right"
+            "hornButton" -> "horn"
+            "lightSwitch" -> "lights"
+            "reverseSwitch" -> "reverse"
+            "hazardWarning" -> "hazard_warning"
+            "leftIndicator" -> "left_indicator"
+            "rightIndicator" -> "right_indicator"
+            "distanceLabel" -> "distance"
+            "speedLabel" -> "speed"
+            "lineLabel" -> "line"
+            "distanceKeepingItem" -> "distance_keeping"
+            "keepContainedItem" -> "keep_contained"
+            "changeDirectionItem" -> "change_direction"
             else -> ""
         }
     }
