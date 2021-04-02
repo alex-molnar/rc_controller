@@ -5,17 +5,22 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
+import io.github.rybalkinsd.kohttp.ext.asString
+import io.github.rybalkinsd.kohttp.ext.httpGet
 import kotlinx.android.synthetic.main.activity_main.*
+import org.json.JSONObject
+import org.json.JSONTokener
 import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
+
+    fun Int.asBoolean() = this == 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        debugIp.text = intent.getStringExtra("IP")
-        debugPort.text = intent.getStringExtra("PORT")
+
 
         thread {
             connectButton.setOnClickListener(onConnectClicked)
@@ -24,9 +29,18 @@ class MainActivity : AppCompatActivity() {
 
     private val onConnectClicked = View.OnClickListener { view ->
         thread {
-            val ip = intent.getStringExtra("IP")
-            val port = intent.getStringExtra("PORT")
-            if (ip != null && port != null) {
+            // TODO: proper error handling
+            val response: JSONObject = (
+                    JSONTokener(
+                        "https://kingbrady.web.elte.hu/rc_car/get_ip.php".httpGet().asString()
+                    ).nextValue() as JSONObject
+                    )
+
+            val ip = response.getString("ip")
+            val port = response.getString("port")
+            val avail = response.getInt("available").asBoolean()
+
+            if (avail) {
                 Channel.connect(
                     ip,
                     port.toInt(),
@@ -48,7 +62,7 @@ class MainActivity : AppCompatActivity() {
             } else {
                 Snackbar.make(
                     view,
-                    "The car is not reachable at the moment",
+                    "The car is not available at the moment",
                     Snackbar.LENGTH_SHORT
                 ).show()
             }

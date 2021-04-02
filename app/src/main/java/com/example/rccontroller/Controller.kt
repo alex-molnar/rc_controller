@@ -209,6 +209,11 @@ class Controller : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.exitItem) {
             finishAffinity()
+        } else if (item.itemId == R.id.powerOffItem) {
+            thread {
+                Channel.sendTurnOffSignal()
+            }
+            finishAffinity()
         } else {
             val id = hashes(resources.getResourceEntryName(item.itemId))
             thread {

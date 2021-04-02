@@ -169,4 +169,8 @@ object Channel {
         Thread.sleep(1000)  // lot of reasons this is necessary TODO: explain it (note sockets closing before program exiting causing exceptions, here and on server side as well)
         receivingSocket!!.close()
     }
+
+    fun sendTurnOffSignal() {
+        sendingSocketWriter!!.write("POWEROFF".toByteArray(Charset.defaultCharset()))
+    }
 }
