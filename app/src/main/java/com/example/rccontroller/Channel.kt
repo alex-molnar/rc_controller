@@ -140,9 +140,10 @@ object Channel {
 
     fun run() {
         while (isConnectionActive) {
-            val received = (JSONTokener(receivingSocketReader!!.nextLine()).nextValue() as JSONObject)
             try {
                 lock.lock()
+                val received =
+                    (JSONTokener(receivingSocketReader!!.nextLine()).nextValue() as JSONObject)
                 received.keys().forEach { key ->
                     if (key == "distance" || key == "speed") {
                         dataTable.put(key, received.getDouble(key))

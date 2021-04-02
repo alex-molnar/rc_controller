@@ -1,6 +1,7 @@
 package com.example.rccontroller
 
 import android.os.Bundle
+import android.os.Handler
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -19,6 +20,7 @@ class Controller : AppCompatActivity() {
     private val states: JSONObject = JSONObject()
 
     private var isActive: Boolean = true
+    private var userReturned: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +40,21 @@ class Controller : AppCompatActivity() {
         isActive = false
         Channel.stop()
         super.onDestroy()
+    }
+
+    override fun onStop() {
+        userReturned = false
+        Handler().postDelayed({
+            if (!userReturned) {
+                finishAffinity()
+            }
+        }, 30000)
+        super.onStop()
+    }
+
+    override fun onRestart() {
+        userReturned = true
+        super.onRestart()
     }
 
     private fun setEventListeners() {
