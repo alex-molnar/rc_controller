@@ -3,13 +3,16 @@ package com.example.rccontroller
 import org.json.JSONObject
 import org.json.JSONTokener
 import java.io.OutputStream
-import java.lang.Exception
 import java.net.Socket
 import java.nio.charset.Charset
 import java.security.MessageDigest
+import java.security.NoSuchAlgorithmException
+import java.security.spec.InvalidKeySpecException
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.thread
+import javax.crypto.SecretKey
+import javax.crypto.SecretKeyFactory
+import javax.crypto.spec.PBEKeySpec
 
 object Channel {
     private var sendingSocket: Socket? = null
@@ -26,11 +29,30 @@ object Channel {
     var isConnectionActive: Boolean = true
     var errorMessage: String? = null
 
+    fun hashPassword(
+        password: CharArray?,
+        salt: ByteArray?,
+        iterations: Int,
+        keyLength: Int
+    ): ByteArray? {
+        return try {
+            val skf: SecretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
+            val spec = PBEKeySpec(password, salt, iterations, keyLength)
+            val key: SecretKey = skf.generateSecret(spec)
+            key.getEncoded()
+        } catch (e: NoSuchAlgorithmException) {
+            throw RuntimeException(e)
+        } catch (e: InvalidKeySpecException) {
+            throw RuntimeException(e)
+        }
+    }
+
     fun connect(
         host: String,
         port: Int,
         password: String,
-        callback: (Boolean) -> Unit) {
+        callback: (Boolean) -> Unit
+    ) {
 
         var result = true
         try {
@@ -41,6 +63,19 @@ object Channel {
             receivingSocketWriter = receivingSocket!!.getOutputStream()
             receivingSocketReader = Scanner(receivingSocket!!.getInputStream())
 
+            // TODO: better hash algorithm
+            // TODO: get everything (salt, key length, iter length...) from db
+//            val salt = ByteArray(32)
+//            nextBytes(salt)
+//            val saltString = "1234"
+//            val salt = saltString.toByteArray()
+//            val hash = hashPassword(password.toCharArray(), salt, 1000, 64)
+//            println("\n#########################################################################\n")
+//            println(hash)
+//            println("\n#########################################################################\n")
+//            sendingSocketWriter!!.write(
+//                hash
+//            )
             sendingSocketWriter!!.write(
                 MessageDigest.getInstance("SHA-256").digest(
                     password.toByteArray(Charset.defaultCharset())
@@ -130,6 +165,7 @@ object Channel {
     fun stop() {
         isConnectionActive = false
         sendingSocket!!.close()
+        Thread.sleep(1000)  // lot of reasons this is necessary TODO: explain it (note sockets closing before program exiting causing exceptions, here and on server side as well)
         receivingSocket!!.close()
     }
 }

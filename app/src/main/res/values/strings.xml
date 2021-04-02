@@ -17,4 +17,5 @@
     <string name="keep_contained">Keep Contained</string>
     <string name="change_direction">Change Turning Direction</string>
     <string name="exit">Exit Application</string>
+    <string name="hot_road">Hot Road</string>
 </resources>

@@ -34,10 +34,10 @@ class Controller : AppCompatActivity() {
         }
     }
 
-    override fun onStop() {
+    override fun onDestroy() {
         isActive = false
         Channel.stop()
-        super.onStop()
+        super.onDestroy()
     }
 
     private fun setEventListeners() {
@@ -125,23 +125,19 @@ class Controller : AppCompatActivity() {
             if (Channel.getBoolean(leftIndicatorString) && !states.optBoolean(leftIndicatorString)) {
                 states.put(leftIndicatorString, true)
                 leftIndicator.background = getDrawable(R.drawable.indicator_on_24dp)
-                leftIndicator.isChecked = true
             }
             else if(!Channel.getBoolean(leftIndicatorString) && states.optBoolean(leftIndicatorString)) {
                 states.put(leftIndicatorString, false)
                 leftIndicator.background = getDrawable(R.drawable.indicator_off_24dp)
-                leftIndicator.isChecked = false
             }
 
             if (Channel.getBoolean(rightIndicatorString) && !states.optBoolean(rightIndicatorString)) {
                 states.put(rightIndicatorString, true)
                 rightIndicator.background = getDrawable(R.drawable.indicator_on_24dp)
-                rightIndicator.isChecked = true
             }
             else if(!Channel.getBoolean(rightIndicatorString) && states.optBoolean(rightIndicatorString)) {
                 states.put(rightIndicatorString, false)
                 rightIndicator.background = getDrawable(R.drawable.indicator_off_24dp)
-                rightIndicator.isChecked = false
             }
 
             if (Channel.getBoolean(reverseString) && !states.optBoolean(reverseString)) {
@@ -195,7 +191,7 @@ class Controller : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.exitItem) {
-            finishAndRemoveTask()
+            finishAffinity()
         } else {
             val id = hashes(resources.getResourceEntryName(item.itemId))
             thread {

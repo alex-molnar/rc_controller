@@ -14,6 +14,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        debugIp.text = intent.getStringExtra("IP")
+        debugPort.text = intent.getStringExtra("PORT")
+
         thread {
             connectButton.setOnClickListener(onConnectClicked)
         }
@@ -21,28 +24,33 @@ class MainActivity : AppCompatActivity() {
 
     private val onConnectClicked = View.OnClickListener { view ->
         thread {
-            var porty: Int
-            try {
-                porty = port.text.toString().toInt()
-            } catch (e: NumberFormatException) {
-                print(e.message)
-                porty = 0
-            }
-            Channel.connect(
-                "192.168.1.11",//host.text.toString(),
-                8000 + porty, //port.text.toString().toInt(),
-                "69420" //password.text.toString()
-            ) { result ->
-                if(result) {
-                    val intentController = Intent(this, Controller::class.java)
-                    startActivity(intentController)
-                } else {
-                    Snackbar.make(
-                        view,
-                        Channel.errorMessage.toString(),
-                        Snackbar.LENGTH_SHORT
-                    ).show()
+            val ip = intent.getStringExtra("IP")
+            val port = intent.getStringExtra("PORT")
+            if (ip != null && port != null) {
+                Channel.connect(
+                    ip,
+                    port.toInt(),
+                    "69420" //password.text.toString()
+                ) { result ->
+                    println("callback called")
+                    println(result)
+                    if (result) {
+                        val intentController = Intent(this, Controller::class.java)
+                        startActivity(intentController)
+                    } else {
+                        Snackbar.make(
+                            view,
+                            Channel.errorMessage.toString(),
+                            Snackbar.LENGTH_SHORT
+                        ).show()
+                    }
                 }
+            } else {
+                Snackbar.make(
+                    view,
+                    "The car is not reachable at the moment",
+                    Snackbar.LENGTH_SHORT
+                ).show()
             }
         }
     }

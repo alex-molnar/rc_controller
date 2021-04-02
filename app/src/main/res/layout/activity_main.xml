@@ -7,39 +7,22 @@
     tools:context=".MainActivity">
 
     <EditText
-        android:id="@+id/port"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="120dp"
-        android:layout_marginTop="64dp"
-        android:layout_marginEnd="120dp"
-        android:ems="10"
-        android:hint="@string/port"
-        android:inputType="number"
-        android:textAlignment="center"
-        android:textSize="24sp"
-        android:theme="@style/floatingInput"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/host" />
-
-    <EditText
         android:id="@+id/password"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="120dp"
-        android:layout_marginTop="64dp"
         android:layout_marginEnd="120dp"
         android:ems="10"
-        android:hint="@string/password"
         android:inputType="numberPassword"
         android:textAlignment="center"
         android:textSize="24sp"
         android:theme="@style/floatingInput"
+        android:autofillHints="@string/password"
+        android:hint="@string/password"
+        app:layout_constraintBottom_toTopOf="@+id/connectButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/port" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/connectButton"
@@ -53,23 +36,33 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <EditText
-        android:id="@+id/host"
+    <TextView
+        android:id="@+id/debugIp"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="120dp"
-        android:layout_marginTop="128dp"
-        android:layout_marginEnd="120dp"
-        android:ems="10"
-        android:hint="@string/host"
-        android:inputType="number"
-        android:digits="0123456789."
-        android:textAlignment="center"
-        android:textSize="24sp"
-        android:theme="@style/floatingInput"
+        android:layout_height="0dp"
+        android:layout_marginStart="80dp"
+        android:layout_marginTop="80dp"
+        android:layout_marginEnd="80dp"
+        android:layout_marginBottom="100dp"
+        android:text="None"
+        app:layout_constraintBottom_toTopOf="@+id/password"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/debugPort"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="80dp"
+        android:layout_marginEnd="80dp"
+        android:layout_marginBottom="40dp"
+        android:text="TextView"
+        app:layout_constraintBottom_toTopOf="@+id/password"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/debugIp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
 
 
