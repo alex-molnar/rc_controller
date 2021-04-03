@@ -15,12 +15,12 @@ import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
 
 object Channel {
-    private var sendingSocket: Socket? = null
-    private var sendingSocketWriter: OutputStream? = null
-    private var sendingSocketReader: Scanner? = null
-    private var receivingSocket: Socket? = null
-    private var receivingSocketWriter: OutputStream? = null
-    private var receivingSocketReader: Scanner? = null
+    private lateinit var sendingSocket: Socket
+    private lateinit var sendingSocketWriter: OutputStream
+    private lateinit var sendingSocketReader: Scanner
+    private lateinit var receivingSocket: Socket
+    private lateinit var receivingSocketWriter: OutputStream
+    private lateinit var receivingSocketReader: Scanner
 
     private val dataTable = JSONObject()
 
@@ -57,11 +57,11 @@ object Channel {
         var result = true
         try {
             sendingSocket = Socket(host, port)
-            sendingSocketWriter = sendingSocket!!.getOutputStream()
-            sendingSocketReader = Scanner(sendingSocket!!.getInputStream())
+            sendingSocketWriter = sendingSocket.getOutputStream()
+            sendingSocketReader = Scanner(sendingSocket.getInputStream())
             receivingSocket = Socket(host, port)
-            receivingSocketWriter = receivingSocket!!.getOutputStream()
-            receivingSocketReader = Scanner(receivingSocket!!.getInputStream())
+            receivingSocketWriter = receivingSocket.getOutputStream()
+            receivingSocketReader = Scanner(receivingSocket.getInputStream())
 
             // TODO: better hash algorithm
             // TODO: get everything (salt, key length, iter length...) from db
@@ -76,13 +76,13 @@ object Channel {
 //            sendingSocketWriter!!.write(
 //                hash
 //            )
-            sendingSocketWriter!!.write(
+            sendingSocketWriter.write(
                 MessageDigest.getInstance("SHA-256").digest(
                     password.toByteArray(Charset.defaultCharset())
                 )
             )
 
-            if (receivingSocketReader!!.nextLine() != "GRANTED") {
+            if (receivingSocketReader.nextLine() != "GRANTED") {
                 errorMessage = "Access DENIED"
                 result = false
             }
@@ -98,7 +98,7 @@ object Channel {
         lock.lock()
         try {
             dataTable.put(key, value)
-            sendingSocketWriter!!.write(dataTable.toString().toByteArray(Charset.defaultCharset()))
+            sendingSocketWriter.write(dataTable.toString().toByteArray(Charset.defaultCharset()))
         }
         catch (e: Exception) {
             println(e.message)
@@ -143,7 +143,7 @@ object Channel {
             try {
                 lock.lock()
                 val received =
-                    (JSONTokener(receivingSocketReader!!.nextLine()).nextValue() as JSONObject)
+                    (JSONTokener(receivingSocketReader.nextLine()).nextValue() as JSONObject)
                 received.keys().forEach { key ->
                     if (key == "distance" || key == "speed") {
                         dataTable.put(key, received.getDouble(key))
@@ -158,19 +158,19 @@ object Channel {
             }
             finally {
                 lock.unlock()
-                receivingSocketWriter!!.write("Done.".toByteArray(Charset.defaultCharset()))
+                receivingSocketWriter.write("Done.".toByteArray(Charset.defaultCharset()))
             }
         }
     }
 
     fun stop() {
         isConnectionActive = false
-        sendingSocket!!.close()
+        sendingSocket.close()
         Thread.sleep(1000)  // lot of reasons this is necessary TODO: explain it (note sockets closing before program exiting causing exceptions, here and on server side as well)
-        receivingSocket!!.close()
+        receivingSocket.close()
     }
 
     fun sendTurnOffSignal() {
-        sendingSocketWriter!!.write("POWEROFF".toByteArray(Charset.defaultCharset()))
+        sendingSocketWriter.write("POWEROFF".toByteArray(Charset.defaultCharset()))
     }
 }
