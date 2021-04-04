@@ -5,42 +5,55 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
-import io.github.rybalkinsd.kohttp.ext.asString
-import io.github.rybalkinsd.kohttp.ext.httpGet
 import kotlinx.android.synthetic.main.activity_main.*
-import org.json.JSONObject
-import org.json.JSONTokener
 import kotlin.concurrent.thread
 
-class MainActivity : AppCompatActivity() {
 
-    fun Int.asBoolean() = this == 1
+class MainActivity : AppCompatActivity() {
+    private fun Int.asBoolean() = this == 1  // TODO:
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-
-
         thread {
             connectButton.setOnClickListener(onConnectClicked)
+
+//            val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
+//            val filter2 = IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)
+//            val filter3 = IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_STARTED)
+//            registerReceiver(receiver, filter)
+//            registerReceiver(receiver, filter2)
+//            registerReceiver(receiver, filter3)
+//
+//            bluetoothAdapter?.startDiscovery()
+//
+//            val inf = getSystemService(Context.WIFI_SERVICE) as WifiManager
+//            println(inf.connectionInfo.ssid)
+//            println(inf.connectionInfo.ipAddress)
+//            println(inf.connectionInfo.networkId)
+//            println(inf.connectionInfo.toString())
+//            val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
+//            println("\n#############################################################################\n")
+//            pairedDevices?.forEach { device ->
+//                print("name: ${device.name}")
+//                print(", addr: ${device.address}") // MAC address
+//                print(", simplename: ${device::class.simpleName}")    // "Int"
+//                print(", qualname: ${device::class.qualifiedName}")
+//                print(", bonST: ${device.bondState}")
+//                println(", uuids: ${device.uuids[0]}")
+//                println(", descCont: ${device.describeContents()}")
+//                println("\n#############################################################################\n")
+//            }
         }
     }
 
     private val onConnectClicked = View.OnClickListener { view ->
         thread {
-            // TODO: proper error handling
-            val response: JSONObject = (
-                    JSONTokener(
-                        "https://kingbrady.web.elte.hu/rc_car/get_ip.php".httpGet().asString()
-                    ).nextValue() as JSONObject
-                    )
+            val ip = "192.168.0.99"
+            val port = 69420
 
-            val ip = response.getString("ip")
-            val port = response.getString("port")
-            val avail = response.getInt("available").asBoolean()
-
-            if (avail) {
+            if (true) {
                 Channel.connect(
                     ip,
                     port.toInt(),

@@ -36,33 +36,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <TextView
-        android:id="@+id/debugIp"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="80dp"
-        android:layout_marginTop="80dp"
-        android:layout_marginEnd="80dp"
-        android:layout_marginBottom="100dp"
-        android:text="None"
-        app:layout_constraintBottom_toTopOf="@+id/password"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/debugPort"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="80dp"
-        android:layout_marginEnd="80dp"
-        android:layout_marginBottom="40dp"
-        android:text="TextView"
-        app:layout_constraintBottom_toTopOf="@+id/password"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/debugIp" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
 
 
