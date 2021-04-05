@@ -19,4 +19,13 @@
     <string name="exit">Exit Application</string>
     <string name="poweroff">Turn Off System</string>
     <string name="hot_road">Hot Road</string>
+    <string name="ACCESS_WIFI_STATE"> ❗ The WIFI state permission is needed to detect the RC car on your network, so the app can autoconnect to it.\n</string>
+    <string name="BLUETOOTH"> ❗ The BLUETOOTH permission is needed, so the app can handle the bluetooth of your phone (turn it on/off).\n</string>
+    <string name="ACCESS_FINE_LOCATION"> ❗ The LOCATION permission is needed for both the WIFI, and the BLUETOOTH functionality of the app, hence it is needed in order to continue.\n</string>
+    <string name="ACCESS_NETWORK_STATE"> ❗ The NETWORK state permission is needed to detect the RC car on your network, so the app can autoconnect to it.\n</string>
+    <string name="BLUETOOTH_ADMIN"> ❗ The BLUETOOTH ADMIN permission is needed in order to scan the area for nearby devices, like the RC car, so the app can autoconnect to it.\n</string>
+    <string name="INTERNET"> ❗ The INTERNET permission is needed to detect the RC car on your network, so the app can autoconnect to it.\n</string>
+    <string name="ACCESS_BACKGROUND_LOCATION"> ❗ The BACKGROUND LOCATION permission is needed, in order for the app to use bluetooth features, so the app can handle the bluetooth of your phone (turn it on/off).\n</string>
+    <string name="TURN_WIFI_ON"> ❗ Please turn on your wifi before you continue in order to autodetect devices on your network. If you have a RC car connected to the same network that your phone, the app will connect to it automatically.\n</string>
+    <string name="TURN_BLUETOOTH_ON"> ❗ Please enable the app to turn on your bluetooth in order to autodetect devices near you. If you have a RC car near you, the app will connect to it automatically.\n</string>
 </resources>

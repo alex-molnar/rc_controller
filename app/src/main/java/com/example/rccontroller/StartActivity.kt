@@ -1,12 +1,10 @@
 package com.example.rccontroller
 
 import android.Manifest.permission.*
+import android.app.AlertDialog
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
@@ -23,6 +21,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONTokener
 import kotlin.concurrent.thread
+
 
 class StartActivity : AppCompatActivity() {
 
@@ -50,6 +49,8 @@ class StartActivity : AppCompatActivity() {
         INTERNET to REQUEST_INTERNET
     )
 
+    private lateinit var permissionExplanations: HashMap<String, String>
+
     private var isNecessaryWifiPermissionsGranted: Boolean = true
     private var isNecessaryBTPermissionsGranted: Boolean = true
 
@@ -66,7 +67,7 @@ class StartActivity : AppCompatActivity() {
     private var port: Int? = null
     private var bluetoothDevice: BluetoothDevice? = null
 
-    val receiver = object : BroadcastReceiver() {
+    private val receiver = object : BroadcastReceiver() {
         override fun onReceive(contxt: Context?, intent: Intent?) {
             when (intent?.action) {
                 BluetoothDevice.ACTION_FOUND -> {
@@ -125,27 +126,53 @@ class StartActivity : AppCompatActivity() {
         }
     }
 
+    private lateinit var dialog: AlertDialog.Builder
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_start)
         findViewById<RippleBackground>(R.id.content).startRippleAnimation()
+        dialog = AlertDialog.Builder(this)
+            .setIcon(R.drawable.ic_hotroad)
+            .setNeutralButton("OK") { _: DialogInterface, _: Int -> pendingRequests-- }
 
         registerReceiver(receiver, IntentFilter(BluetoothDevice.ACTION_FOUND))
         registerReceiver(receiver, IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED))
         registerReceiver(receiver, IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_STARTED))
         registerReceiver(receiver, IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED))
 
-        requestPermissions()
+        permissionExplanations = hashMapOf(
+            "ACCESS_WIFI_STATE" to getString(R.string.ACCESS_WIFI_STATE),
+            "BLUETOOTH" to getString(R.string.BLUETOOTH),
+            "ACCESS_FINE_LOCATION" to getString(R.string.ACCESS_FINE_LOCATION),
+            "ACCESS_NETWORK_STATE" to getString(R.string.ACCESS_NETWORK_STATE),
+            "BLUETOOTH_ADMIN" to getString(R.string.BLUETOOTH_ADMIN),
+            "INTERNET" to getString(R.string.INTERNET),
+            "ACCESS_BACKGROUND_LOCATION" to getString(R.string.ACCESS_BACKGROUND_LOCATION)
+        )
 
         thread {
+            requestPermissions()
             while (pendingRequests > 0) {
                 Thread.sleep(2000)
             }
 
             if (!isNecessaryWifiPermissionsGranted || !isNecessaryBTPermissionsGranted) {
+                pendingRequests++
+                var message = ""
+
                 deniedPermissions.forEach { permission ->
-                    println("Beg for $permission nicely")
+                    message += "\n" + permissionExplanations[permission]
                 }
+
+                runOnUiThread {
+                    dialog.setTitle("About Permissions").setMessage(message.trim()).show()
+                }
+
+                while (pendingRequests > 0) {
+                    Thread.sleep(2000)
+                }
+
                 requestPermissions()
                 while (pendingRequests > 0) {
                     Thread.sleep(2000)
@@ -192,8 +219,11 @@ class StartActivity : AppCompatActivity() {
         val res = grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
 
         when (requestCode) {
+            REQUEST_ACCESS_FINE_LOCATION -> {
+                isNecessaryWifiPermissionsGranted = res
+                isNecessaryBTPermissionsGranted = res
+            }
             REQUEST_ACCESS_WIFI_STATE,
-            REQUEST_ACCESS_FINE_LOCATION,
             REQUEST_ACCESS_NETWORK_STATE,
             REQUEST_INTERNET ->
                 isNecessaryWifiPermissionsGranted = res
@@ -225,8 +255,11 @@ class StartActivity : AppCompatActivity() {
             ) == PermissionChecker.PERMISSION_GRANTED
 
             when (permission) {
+                ACCESS_FINE_LOCATION -> {
+                    isNecessaryWifiPermissionsGranted = isNecessaryWifiPermissionsGranted && res
+                    isNecessaryBTPermissionsGranted = isNecessaryBTPermissionsGranted && res
+                }
                 ACCESS_WIFI_STATE,
-                ACCESS_FINE_LOCATION,
                 ACCESS_NETWORK_STATE,
                 INTERNET ->
                     isNecessaryWifiPermissionsGranted = isNecessaryWifiPermissionsGranted && res
@@ -278,12 +311,26 @@ class StartActivity : AppCompatActivity() {
         println("After one round deviceFound: $deviceFound")
 
         if (!deviceFound) {
+            var message: String = ""
+            val shouldDisplayMessage = correctableWifiError || correctableBTError
             if (correctableWifiError) {
-                println("Display some nice message to available WIFI")
+                message = getString(R.string.TURN_WIFI_ON)
             }
             if (correctableBTError) {
-                println("Display some nice message of available BT")
-            } // TODO: use hasmap so only one message is displayed
+                message += "\n" + getString(R.string.TURN_BLUETOOTH_ON)
+            }
+
+            if (shouldDisplayMessage) {
+                runOnUiThread {
+                    dialog.setTitle("About Permissions").setMessage(message.trim()).show()
+                }
+                pendingRequests++
+
+                while (pendingRequests > 0) {
+                    Thread.sleep(2000)
+                }
+            }
+
             if (isNecessaryWifiPermissionsGranted) {
                 deviceFound = searchForLanDevices()
             }
