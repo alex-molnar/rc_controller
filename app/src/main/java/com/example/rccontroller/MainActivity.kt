@@ -1,5 +1,6 @@
 package com.example.rccontroller
 
+import android.bluetooth.BluetoothDevice
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -23,34 +24,26 @@ class MainActivity : AppCompatActivity() {
 
     private val onConnectClicked = View.OnClickListener { view ->
         thread {
-            val ip = "192.168.0.99"
-            val port = 69420
+            val ip = intent.getStringExtra("IP")
+            val port = intent.getIntExtra("PORT", -1)
+            val bluetoothDevice = intent.getParcelableExtra<BluetoothDevice>("DEV")
 
-            if (true) {
-                Channel.connect(
-                    ip,
-                    port.toInt(),
-                    "69420" //password.text.toString()
-                ) { result ->
-                    println("callback called")
-                    println(result)
-                    if (result) {
-                        val intentController = Intent(this, Controller::class.java)
-                        startActivity(intentController)
-                    } else {
-                        Snackbar.make(
-                            view,
-                            Channel.errorMessage.toString(),
-                            Snackbar.LENGTH_SHORT
-                        ).show()
-                    }
+            Channel.connect(
+                ip,
+                port,
+                bluetoothDevice,
+                "69420" /*password.text.toString()*/
+            ) { result ->
+                if (result) {
+                    val intentController = Intent(this, Controller::class.java)
+                    startActivity(intentController)
+                } else {
+                    Snackbar.make(
+                        view,
+                        Channel.errorMessage.toString(),
+                        Snackbar.LENGTH_SHORT
+                    ).show()
                 }
-            } else {
-                Snackbar.make(
-                    view,
-                    "The car is not available at the moment",
-                    Snackbar.LENGTH_SHORT
-                ).show()
             }
         }
     }

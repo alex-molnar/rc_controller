@@ -163,6 +163,11 @@ class StartActivity : AppCompatActivity() {
         }
     }
 
+    override fun onDestroy() {
+        unregisterReceiver(receiver)
+        super.onDestroy()
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             REQUEST_ENABLE_BT -> pendingRequests--
@@ -249,6 +254,9 @@ class StartActivity : AppCompatActivity() {
 
         if (searchForDevice()) {
             println("DEVICE FOUND LAUNCHING MAIN ACTIVITY")
+            intentMain.putExtra("IP", ip)
+            intentMain.putExtra("PORT", port)
+            intentMain.putExtra("DEV", bluetoothDevice)
             startActivity(intentMain)
         } else {
             println("DEVICE NOT FOUND LAUNCHING ERROR ACTIVITY")

@@ -36,17 +36,11 @@ class Controller : AppCompatActivity() {
         }
     }
 
-    override fun onDestroy() {
-        isActive = false
-        Channel.stop()
-        super.onDestroy()
-    }
-
     override fun onStop() {
         userReturned = false
         Handler().postDelayed({
             if (!userReturned) {
-                finishAffinity()
+                cleanupAndFinish()
             }
         }, 30000)
         super.onStop()
@@ -55,6 +49,13 @@ class Controller : AppCompatActivity() {
     override fun onRestart() {
         userReturned = true
         super.onRestart()
+    }
+
+    private fun cleanupAndFinish() {
+        isActive = false
+        Channel.stop()
+        Thread.sleep(500)
+        finishAffinity()
     }
 
     private fun setEventListeners() {
@@ -208,12 +209,12 @@ class Controller : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.exitItem) {
-            finishAffinity()
+            cleanupAndFinish()
         } else if (item.itemId == R.id.powerOffItem) {
             thread {
                 Channel.sendTurnOffSignal()
             }
-            finishAffinity()
+            cleanupAndFinish()
         } else {
             val id = hashes(resources.getResourceEntryName(item.itemId))
             thread {

@@ -1,88 +1,66 @@
 package com.example.rccontroller
 
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothSocket
 import org.json.JSONObject
 import org.json.JSONTokener
 import java.io.OutputStream
 import java.net.Socket
 import java.nio.charset.Charset
 import java.security.MessageDigest
-import java.security.NoSuchAlgorithmException
-import java.security.spec.InvalidKeySpecException
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
-import javax.crypto.SecretKey
-import javax.crypto.SecretKeyFactory
-import javax.crypto.spec.PBEKeySpec
 
 object Channel {
-    private lateinit var sendingSocket: Socket
-    private lateinit var sendingSocketWriter: OutputStream
-    private lateinit var sendingSocketReader: Scanner
-    private lateinit var receivingSocket: Socket
-    private lateinit var receivingSocketWriter: OutputStream
-    private lateinit var receivingSocketReader: Scanner
+    private var socket: Socket? = null
+    private var btsocket: BluetoothSocket? = null
+    private lateinit var socketWriter: OutputStream
+    private lateinit var socketReader: Scanner
 
     private val dataTable = JSONObject()
 
-    private val lock = ReentrantLock()
+    private val lock = ReentrantLock()  // TODO: remove this?
 
     var isConnectionActive: Boolean = true
     var errorMessage: String? = null
 
-    fun hashPassword(
-        password: CharArray?,
-        salt: ByteArray?,
-        iterations: Int,
-        keyLength: Int
-    ): ByteArray? {
-        return try {
-            val skf: SecretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
-            val spec = PBEKeySpec(password, salt, iterations, keyLength)
-            val key: SecretKey = skf.generateSecret(spec)
-            key.getEncoded()
-        } catch (e: NoSuchAlgorithmException) {
-            throw RuntimeException(e)
-        } catch (e: InvalidKeySpecException) {
-            throw RuntimeException(e)
-        }
-    }
-
     fun connect(
-        host: String,
+        host: String?,
         port: Int,
+        bluetoothDevice: BluetoothDevice?,
         password: String,
         callback: (Boolean) -> Unit
     ) {
 
         var result = true
         try {
-            sendingSocket = Socket(host, port)
-            sendingSocketWriter = sendingSocket.getOutputStream()
-            sendingSocketReader = Scanner(sendingSocket.getInputStream())
-            receivingSocket = Socket(host, port)
-            receivingSocketWriter = receivingSocket.getOutputStream()
-            receivingSocketReader = Scanner(receivingSocket.getInputStream())
+            if (host != null && port > 0) {
+                socket = Socket(host, port)
+                socket?.let { notNullableSocket ->
+                    socketWriter = notNullableSocket.getOutputStream()
+                    socketReader = Scanner(notNullableSocket.getInputStream())
+                }
+            } else if (bluetoothDevice != null) {
+                btsocket =
+                    bluetoothDevice.createRfcommSocketToServiceRecord(UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee"))
+                btsocket?.let { notNullableSocket ->
+                    notNullableSocket.connect()
+                    socketWriter = notNullableSocket.outputStream
+                    socketReader = Scanner(notNullableSocket.inputStream)
+                }
+            } else {
+                errorMessage = "The device discovered is no longer available, try a new device"
+            }
 
             // TODO: better hash algorithm
-            // TODO: get everything (salt, key length, iter length...) from db
-//            val salt = ByteArray(32)
-//            nextBytes(salt)
-//            val saltString = "1234"
-//            val salt = saltString.toByteArray()
-//            val hash = hashPassword(password.toCharArray(), salt, 1000, 64)
-//            println("\n#########################################################################\n")
-//            println(hash)
-//            println("\n#########################################################################\n")
-//            sendingSocketWriter!!.write(
-//                hash
-//            )
-            sendingSocketWriter.write(
+
+            socketWriter.write(
                 MessageDigest.getInstance("SHA-256").digest(
                     password.toByteArray(Charset.defaultCharset())
                 )
             )
 
-            if (receivingSocketReader.nextLine() != "GRANTED") {
+            if (socketReader.nextLine() != "GRANTED") {
                 errorMessage = "Access DENIED"
                 result = false
             }
@@ -95,21 +73,21 @@ object Channel {
     }
 
     fun setMessage(key: String, value: Boolean) {
-        lock.lock()
+//        lock.lock()
         try {
             dataTable.put(key, value)
-            sendingSocketWriter.write(dataTable.toString().toByteArray(Charset.defaultCharset()))
+            socketWriter.write(dataTable.toString().toByteArray(Charset.defaultCharset()))
         }
         catch (e: Exception) {
             println(e.message)
         }
         finally {
-            lock.unlock()
+//            lock.unlock()
         }
     }
 
     fun getBoolean(key: String): Boolean {
-        lock.lock()
+//        lock.lock()
         var value = false
         try {
             value = dataTable.optBoolean(key, false)
@@ -118,13 +96,13 @@ object Channel {
             println(e.message)
         }
         finally {
-            lock.unlock()
+//            lock.unlock()
         }
         return value
     }
 
     fun getDouble(key: String, fallback: Double): Double {
-        lock.lock()
+//        lock.lock()
         var value = fallback
         try {
             value = dataTable.optDouble(key, fallback)
@@ -133,7 +111,7 @@ object Channel {
             println(e.message)
         }
         finally {
-            lock.unlock()
+//            lock.unlock()
         }
         return value
     }
@@ -141,9 +119,9 @@ object Channel {
     fun run() {
         while (isConnectionActive) {
             try {
-                lock.lock()
+//                lock.lock()
                 val received =
-                    (JSONTokener(receivingSocketReader.nextLine()).nextValue() as JSONObject)
+                    (JSONTokener(socketReader.nextLine()).nextValue() as JSONObject)
                 received.keys().forEach { key ->
                     if (key == "distance" || key == "speed") {
                         dataTable.put(key, received.getDouble(key))
@@ -157,20 +135,18 @@ object Channel {
                 println(e.message)
             }
             finally {
-                lock.unlock()
-                receivingSocketWriter.write("Done.".toByteArray(Charset.defaultCharset()))
+//                lock.unlock()
             }
         }
     }
 
     fun stop() {
         isConnectionActive = false
-        sendingSocket.close()
-        Thread.sleep(1000)  // lot of reasons this is necessary TODO: explain it (note sockets closing before program exiting causing exceptions, here and on server side as well)
-        receivingSocket.close()
+        socket?.close()
+        btsocket?.close()
     }
 
     fun sendTurnOffSignal() {
-        sendingSocketWriter.write("POWEROFF".toByteArray(Charset.defaultCharset()))
+        socketWriter.write("POWEROFF".toByteArray(Charset.defaultCharset()))
     }
 }
