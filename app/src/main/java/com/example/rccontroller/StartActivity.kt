@@ -152,46 +152,15 @@ class StartActivity : AppCompatActivity() {
         )
 
         thread {
-            requestPermissions()
-            while (pendingRequests > 0) {
-                Thread.sleep(2000)
-            }
-
-            if (!isNecessaryWifiPermissionsGranted || !isNecessaryBTPermissionsGranted) {
-                pendingRequests++
-                var message = ""
-
-                deniedPermissions.forEach { permission ->
-                    message += "\n" + permissionExplanations[permission]
-                }
-
-                runOnUiThread {
-                    dialog.setTitle("About Permissions").setMessage(message.trim()).show()
-                }
-
-                while (pendingRequests > 0) {
-                    Thread.sleep(2000)
-                }
-
-                requestPermissions()
-                while (pendingRequests > 0) {
-                    Thread.sleep(2000)
-                }
-            }
-
-            if (searchForDevice()) {
-                println("DEVICE FOUND LAUNCHING MAIN ACTIVITY")  // launch activity here
-            } else {
-                println("DEVICE NOT FOUND LAUNCHING ERROR ACTIVITY MAYBE?") // launch activity here
-            }
+            connect()
         }
+    }
 
-
-//        val intentController = Intent(this, MainActivity::class.java)
-//
-//        Timer("SettingUp", false).schedule(2500) {
-//            startActivity(intentController)
-//        }
+    override fun onRestart() {
+        super.onRestart()
+        thread {
+            connect()
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -245,6 +214,54 @@ class StartActivity : AppCompatActivity() {
 
         println(responseString)
         pendingRequests--
+    }
+
+    private fun connect() {
+        requestPermissions()
+        while (pendingRequests > 0) {
+            Thread.sleep(2000)
+        }
+
+        if (!isNecessaryWifiPermissionsGranted || !isNecessaryBTPermissionsGranted) {
+            pendingRequests++
+            var message = ""
+
+            deniedPermissions.forEach { permission ->
+                message += "\n" + permissionExplanations[permission]
+            }
+
+            runOnUiThread {
+                dialog.setTitle("About Permissions").setMessage(message.trim()).show()
+            }
+
+            while (pendingRequests > 0) {
+                Thread.sleep(2000)
+            }
+
+            requestPermissions()
+            while (pendingRequests > 0) {
+                Thread.sleep(2000)
+            }
+        }
+
+        val intentMain = Intent(this, MainActivity::class.java)
+        val intentError = Intent(this, ErrorActivity::class.java)
+
+        if (searchForDevice()) {
+            println("DEVICE FOUND LAUNCHING MAIN ACTIVITY")
+            startActivity(intentMain)
+        } else {
+            println("DEVICE NOT FOUND LAUNCHING ERROR ACTIVITY")
+            intentError.putExtra(
+                getString(R.string.error),
+                if (!isNecessaryWifiPermissionsGranted && !isNecessaryBTPermissionsGranted) {
+                    getString(R.string.PERMISSION_ERROR)
+                } else {
+                    getString(R.string.NO_DEVICES_ERROR)
+                }
+            )
+            startActivity(intentError)
+        }
     }
 
     private fun requestPermissions() {
@@ -315,9 +332,11 @@ class StartActivity : AppCompatActivity() {
             val shouldDisplayMessage = correctableWifiError || correctableBTError
             if (correctableWifiError) {
                 message = getString(R.string.TURN_WIFI_ON)
+                correctableWifiError = false
             }
             if (correctableBTError) {
                 message += "\n" + getString(R.string.TURN_BLUETOOTH_ON)
+                correctableBTError = false
             }
 
             if (shouldDisplayMessage) {

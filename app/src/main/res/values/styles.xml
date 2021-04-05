@@ -15,7 +15,12 @@
         <item name="android:windowBackground">@color/colorBackgroundDark</item>
         <item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
     </style>
-    
+
+    <style name="ErrorPageTheme" parent="Theme.AppCompat">
+        <item name="colorPrimary">@color/errorPrimary</item>
+        <item name="android:windowBackground">@color/errorBG</item>
+    </style>
+
     <style name="WindowAnimationTransition">
         <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
         <item name="android:windowExitAnimation">@android:anim/fade_out</item>
