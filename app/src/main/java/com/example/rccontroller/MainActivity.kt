@@ -11,8 +11,6 @@ import kotlin.concurrent.thread
 
 
 class MainActivity : AppCompatActivity() {
-    private fun Int.asBoolean() = this == 1  // TODO:
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -38,11 +36,7 @@ class MainActivity : AppCompatActivity() {
                     val intentController = Intent(this, Controller::class.java)
                     startActivity(intentController)
                 } else {
-                    Snackbar.make(
-                        view,
-                        Channel.errorMessage.toString(),
-                        Snackbar.LENGTH_SHORT
-                    ).show()
+                    Snackbar.make(view, Channel.errorMessage, Snackbar.LENGTH_INDEFINITE).show()
                 }
             }
         }

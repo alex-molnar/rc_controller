@@ -28,8 +28,6 @@ import kotlin.concurrent.thread
 
 class StartActivity : AppCompatActivity() {
 
-    private fun Int.asBoolean() = this == 1
-
     private enum class PairingStaus {
         SCANNING, BONDING, FINISHED
     }
@@ -43,6 +41,10 @@ class StartActivity : AppCompatActivity() {
     private val REQUEST_ACCESS_BACKGROUND_LOCATION: Int = 7
     private val REQUEST_ENABLE_BT: Int = 8
 
+    private val CAESAR_URL: String = "https://kingbrady.web.elte.hu/rc_car/get_available.php"
+    private val BLUETOOTH_NAME: String = "RC_car_raspberrypi"
+    private val IFACE_WIFI: String = "wlan0"
+
     private val neededPermissions = hashMapOf<String, Int>(
         ACCESS_WIFI_STATE to REQUEST_ACCESS_WIFI_STATE,
         BLUETOOTH to REQUEST_BLUETOOTH,
@@ -52,14 +54,12 @@ class StartActivity : AppCompatActivity() {
         INTERNET to REQUEST_INTERNET
     )
 
-    private lateinit var permissionExplanations: HashMap<String, String>
-
     private var isNecessaryWifiPermissionsGranted: Boolean = true
     private var isNecessaryBTPermissionsGranted: Boolean = true
 
-    private var pendingRequests = 0
+    private var pendingRequests: Int = 0
 
-    private var deniedPermissions: ArrayList<String> = ArrayList()
+    private var deniedPermissions: ArrayList<Int> = ArrayList()
 
     private var correctableWifiError: Boolean = false
     private var correctableBTError: Boolean = false
@@ -74,20 +74,22 @@ class StartActivity : AppCompatActivity() {
         override fun onReceive(contxt: Context?, intent: Intent?) {
             when (intent?.action) {
                 BluetoothDevice.ACTION_FOUND -> {
-                    val device =
+                    val btdevice =
                         intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
-                    if (device?.name == "RC_car_raspberrypi") {
-                        println("discovered ${device.name} with address ${device.address} already paired: ${device.bondState == BluetoothDevice.BOND_BONDED}")
-                        if (device.bondState == BluetoothDevice.BOND_BONDED) {
-                            bluetoothDevice = device
-                            bluetoothPairingStatus = PairingStaus.FINISHED
-                            println("Device already bonded, set to device")
-                        } else {
-                            bluetoothPairingStatus = PairingStaus.BONDING
-                            println("Started bonding process")
-                            device.createBond()
+                    btdevice?.let { device ->
+                        if (device.name == BLUETOOTH_NAME) {
+                            println("discovered ${device.name} with address ${device.address} already paired: ${device.bondState == BluetoothDevice.BOND_BONDED}")
+                            if (device.bondState == BluetoothDevice.BOND_BONDED) {
+                                bluetoothDevice = device
+                                bluetoothPairingStatus = PairingStaus.FINISHED
+                                println("Device already bonded, set to device")
+                            } else {
+                                bluetoothPairingStatus = PairingStaus.BONDING
+                                println("Started bonding process")
+                                device.createBond()
+                            }
+                            BluetoothAdapter.getDefaultAdapter().cancelDiscovery()
                         }
-                        BluetoothAdapter.getDefaultAdapter().cancelDiscovery()
                     }
                 }
                 BluetoothDevice.ACTION_BOND_STATE_CHANGED -> {
@@ -144,16 +146,6 @@ class StartActivity : AppCompatActivity() {
         registerReceiver(receiver, IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_STARTED))
         registerReceiver(receiver, IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED))
 
-        permissionExplanations = hashMapOf(
-            "ACCESS_WIFI_STATE" to getString(R.string.ACCESS_WIFI_STATE),
-            "BLUETOOTH" to getString(R.string.BLUETOOTH),
-            "ACCESS_FINE_LOCATION" to getString(R.string.ACCESS_FINE_LOCATION),
-            "ACCESS_NETWORK_STATE" to getString(R.string.ACCESS_NETWORK_STATE),
-            "BLUETOOTH_ADMIN" to getString(R.string.BLUETOOTH_ADMIN),
-            "INTERNET" to getString(R.string.INTERNET),
-            "ACCESS_BACKGROUND_LOCATION" to getString(R.string.ACCESS_BACKGROUND_LOCATION)
-        )
-
         thread {
             connect()
         }
@@ -183,14 +175,14 @@ class StartActivity : AppCompatActivity() {
         permissions: Array<String>, grantResults: IntArray
     ) {
         val permission = when (requestCode) {
-            REQUEST_ACCESS_WIFI_STATE -> "ACCESS_WIFI_STATE"
-            REQUEST_BLUETOOTH -> "BLUETOOTH"
-            REQUEST_ACCESS_FINE_LOCATION -> "ACCESS_FINE_LOCATION"
-            REQUEST_ACCESS_NETWORK_STATE -> "ACCESS_NETWORK_STATE"
-            REQUEST_BLUETOOTH_ADMIN -> "BLUETOOTH_ADMIN"
-            REQUEST_INTERNET -> "INTERNET"
-            REQUEST_ACCESS_BACKGROUND_LOCATION -> "ACCESS_BACKGROUND_LOCATION"
-            else -> "UNKNOWN"
+            REQUEST_ACCESS_WIFI_STATE -> R.string.ACCESS_WIFI_STATE
+            REQUEST_BLUETOOTH -> R.string.BLUETOOTH
+            REQUEST_ACCESS_FINE_LOCATION -> R.string.ACCESS_FINE_LOCATION
+            REQUEST_ACCESS_NETWORK_STATE -> R.string.ACCESS_NETWORK_STATE
+            REQUEST_BLUETOOTH_ADMIN -> R.string.BLUETOOTH_ADMIN
+            REQUEST_INTERNET -> R.string.INTERNET
+            REQUEST_ACCESS_BACKGROUND_LOCATION -> R.string.ACCESS_BACKGROUND_LOCATION
+            else -> -1
         }
 
         val res = grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
@@ -211,9 +203,9 @@ class StartActivity : AppCompatActivity() {
         }
 
         val responseString = if (res) {
-            "request: $permission, result: GRANTED"
+            "request: ${getString(permission)}, result: GRANTED"
         } else {
-            "request: $permission, result: DENIED"
+            "request: ${getString(permission)}, result: DENIED"
         }
 
         if (!res) {
@@ -226,30 +218,20 @@ class StartActivity : AppCompatActivity() {
 
     private fun connect() {
         requestPermissions()
-        while (pendingRequests > 0) {
-            Thread.sleep(2000)
-        }
+        waitForResults(2)
 
         if (!isNecessaryWifiPermissionsGranted || !isNecessaryBTPermissionsGranted) {
             pendingRequests++
             var message = ""
-
             deniedPermissions.forEach { permission ->
-                message += "\n" + permissionExplanations[permission]
+                message += "\n" + getString(permission)
             }
 
-            runOnUiThread {
-                dialog.setTitle("About Permissions").setMessage(message.trim()).show()
-            }
-
-            while (pendingRequests > 0) {
-                Thread.sleep(2000)
-            }
+            runOnUiThread { dialog.setTitle("About Permissions").setMessage(message.trim()).show() }
+            waitForResults(2)
 
             requestPermissions()
-            while (pendingRequests > 0) {
-                Thread.sleep(2000)
-            }
+            waitForResults(2)
         }
 
         val intentMain = Intent(this, MainActivity::class.java)
@@ -339,27 +321,26 @@ class StartActivity : AppCompatActivity() {
         println("After one round deviceFound: $deviceFound")
 
         if (!deviceFound) {
-            var message: String = ""
-            val shouldDisplayMessage = correctableWifiError || correctableBTError
-            if (correctableWifiError) {
-                message = getString(R.string.TURN_WIFI_ON)
-                correctableWifiError = false
-            }
-            if (correctableBTError) {
-                message += "\n" + getString(R.string.TURN_BLUETOOTH_ON)
-                correctableBTError = false
+            val message = when {
+                correctableWifiError && correctableBTError ->
+                    getString(R.string.BOTH_DEVICES_OFF) +
+                            getString(R.string.TURN_WIFI_ON) +
+                            "\n" +
+                            getString(R.string.TURN_BLUETOOTH_ON)
+                correctableWifiError ->
+                    getString(R.string.UNSUCCESSFUL_SEARCH) +
+                            " BLUETOOTH.\n" +
+                            getString(R.string.TURN_WIFI_ON)
+                correctableBTError ->
+                    getString(R.string.UNSUCCESSFUL_SEARCH) +
+                            " WIFI.\n" +
+                            getString(R.string.TURN_BLUETOOTH_ON)
+                else -> getString(R.string.UNSUCCESSFUL_SEARCH) + " both WIFI and BLUETOOTH.\n"
             }
 
-            if (shouldDisplayMessage) {
-                runOnUiThread {
-                    dialog.setTitle("About Permissions").setMessage(message.trim()).show()
-                }
-                pendingRequests++
-
-                while (pendingRequests > 0) {
-                    Thread.sleep(2000)
-                }
-            }
+            pendingRequests++
+            runOnUiThread { dialog.setTitle("Advised Steps").setMessage(message).show() }
+            waitForResults(2)
 
             if (isNecessaryWifiPermissionsGranted) {
                 deviceFound = searchForLanDevices()
@@ -382,12 +363,9 @@ class StartActivity : AppCompatActivity() {
             correctableWifiError = true
         } else {
             val response: JSONArray = (
-                    JSONTokener(
-                        "https://kingbrady.web.elte.hu/rc_car/get_available.php".httpGet()
-                            .asString()
-                    ).nextValue() as JSONArray
+                    JSONTokener(CAESAR_URL.httpGet().asString()).nextValue() as JSONArray
                     )
-            if (response.length() > 0 && iface == "wlan0") {
+            if (response.length() > 0 && iface == IFACE_WIFI) {
                 return scanForLanDevices(response)
             } else if (response.length() > 0) {
                 correctableWifiError = true
@@ -442,13 +420,16 @@ class StartActivity : AppCompatActivity() {
     private fun scanForBTDevices(adapter: BluetoothAdapter): Boolean {
         bluetoothPairingStatus = PairingStaus.SCANNING
         adapter.startDiscovery()
-
-        while (bluetoothPairingStatus != PairingStaus.FINISHED) {
-            println("WAITING FOR BT discovery")
-            Thread.sleep(3000)
-        }
+        waitForResults(2, true)
 
         println("BT Discovery process ended. result: ${bluetoothDevice != null}")
         return bluetoothDevice != null
+    }
+
+    private fun waitForResults(seconds: Long = 1, isBluetoothState: Boolean = false) {
+        while ({
+                if (isBluetoothState) pendingRequests > 0
+                else bluetoothPairingStatus != PairingStaus.FINISHED
+            }()) Thread.sleep(1000 * seconds)
     }
 }

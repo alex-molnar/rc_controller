@@ -28,9 +28,6 @@ class Controller : AppCompatActivity() {
 
         thread {
             Channel.run()
-        }
-
-        thread {
             setEventListeners()
             listen()
         }

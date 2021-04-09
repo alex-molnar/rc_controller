@@ -9,7 +9,6 @@ import java.net.Socket
 import java.nio.charset.Charset
 import java.security.MessageDigest
 import java.util.*
-import java.util.concurrent.locks.ReentrantLock
 
 object Channel {
     private var socket: Socket? = null
@@ -19,10 +18,19 @@ object Channel {
 
     private val dataTable = JSONObject()
 
-    private val lock = ReentrantLock()  // TODO: remove this?
-
     var isConnectionActive: Boolean = true
-    var errorMessage: String? = null
+    lateinit var errorMessage: String
+
+    private const val uuid: String = "94f39d29-7d6d-583a-973b-fba39e49d4ee"
+    private const val DEVICE_NOT_AVAILABLE =
+        "The device discovered is no longer available, try a new device!"
+    private const val ACCESS_DENIED =
+        "ACCESS DENIED! Try another password, or try to connect ot another device!"
+    private const val NEWORK_EXCEPTION =
+        "Something came up during the connection! Please check if the device is still available, and try to conenct again!"
+    private const val DISTANCE = "distance"
+    private const val SPEED = "speed"
+    private val POWEROFF_MESSAGE = "POWEROFF".toByteArray(Charset.defaultCharset())
 
     fun connect(
         host: String?,
@@ -41,15 +49,14 @@ object Channel {
                     socketReader = Scanner(notNullableSocket.getInputStream())
                 }
             } else if (bluetoothDevice != null) {
-                btsocket =
-                    bluetoothDevice.createRfcommSocketToServiceRecord(UUID.fromString("94f39d29-7d6d-583a-973b-fba39e49d4ee"))
+                btsocket = bluetoothDevice.createRfcommSocketToServiceRecord(UUID.fromString(uuid))
                 btsocket?.let { notNullableSocket ->
                     notNullableSocket.connect()
                     socketWriter = notNullableSocket.outputStream
                     socketReader = Scanner(notNullableSocket.inputStream)
                 }
             } else {
-                errorMessage = "The device discovered is no longer available, try a new device"
+                errorMessage = DEVICE_NOT_AVAILABLE
             }
 
             // TODO: better hash algorithm
@@ -61,11 +68,11 @@ object Channel {
             )
 
             if (socketReader.nextLine() != "GRANTED") {
-                errorMessage = "Access DENIED"
+                errorMessage = ACCESS_DENIED
                 result = false
             }
         } catch (e: Exception) {
-            errorMessage = e.message
+            errorMessage = NEWORK_EXCEPTION
             println(errorMessage)
             result = false
         }
@@ -73,7 +80,6 @@ object Channel {
     }
 
     fun setMessage(key: String, value: Boolean) {
-//        lock.lock()
         try {
             dataTable.put(key, value)
             socketWriter.write(dataTable.toString().toByteArray(Charset.defaultCharset()))
@@ -81,13 +87,9 @@ object Channel {
         catch (e: Exception) {
             println(e.message)
         }
-        finally {
-//            lock.unlock()
-        }
     }
 
     fun getBoolean(key: String): Boolean {
-//        lock.lock()
         var value = false
         try {
             value = dataTable.optBoolean(key, false)
@@ -95,14 +97,10 @@ object Channel {
         catch (e: Exception) {
             println(e.message)
         }
-        finally {
-//            lock.unlock()
-        }
         return value
     }
 
     fun getDouble(key: String, fallback: Double): Double {
-//        lock.lock()
         var value = fallback
         try {
             value = dataTable.optDouble(key, fallback)
@@ -110,32 +108,23 @@ object Channel {
         catch (e: Exception) {
             println(e.message)
         }
-        finally {
-//            lock.unlock()
-        }
         return value
     }
 
     fun run() {
         while (isConnectionActive) {
             try {
-//                lock.lock()
-                val received =
-                    (JSONTokener(socketReader.nextLine()).nextValue() as JSONObject)
+                val received = (JSONTokener(socketReader.nextLine()).nextValue() as JSONObject)
                 received.keys().forEach { key ->
-                    if (key == "distance" || key == "speed") {
+                    if (key == DISTANCE || key == SPEED) {
                         dataTable.put(key, received.getDouble(key))
-                    }
-                    else {
+                    } else {
                         dataTable.put(key, received.getBoolean(key))
                     }
                 }
             }
             catch (e: Exception) {
                 println(e.message)
-            }
-            finally {
-//                lock.unlock()
             }
         }
     }
@@ -147,6 +136,6 @@ object Channel {
     }
 
     fun sendTurnOffSignal() {
-        socketWriter.write("POWEROFF".toByteArray(Charset.defaultCharset()))
+        socketWriter.write(POWEROFF_MESSAGE)
     }
 }
