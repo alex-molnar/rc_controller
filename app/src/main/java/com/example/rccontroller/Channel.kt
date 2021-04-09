@@ -42,7 +42,7 @@ object Channel {
                 }
             } else if (bluetoothDevice != null) {
                 btsocket =
-                    bluetoothDevice.createRfcommSocketToServiceRecord(UUID.fromString("94f39d29-7d6d-437d-973b-fba39e49d4ee"))
+                    bluetoothDevice.createRfcommSocketToServiceRecord(UUID.fromString("94f39d29-7d6d-583a-973b-fba39e49d4ee"))
                 btsocket?.let { notNullableSocket ->
                     notNullableSocket.connect()
                     socketWriter = notNullableSocket.outputStream

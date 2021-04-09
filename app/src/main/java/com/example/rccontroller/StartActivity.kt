@@ -20,6 +20,9 @@ import io.github.rybalkinsd.kohttp.ext.httpGet
 import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONTokener
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.concurrent.thread
 
 
@@ -422,7 +425,11 @@ class StartActivity : AppCompatActivity() {
 
         for (i: Int in 0 until devices.length()) {
             val device = (devices[i] as JSONObject)
-            if (device["ssid"].equals(ssid.trim('"'))) {
+            val date = SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss",
+                Locale.getDefault()
+            ).parse(device["time_stamp"].toString())
+            if (device["ssid"].equals(ssid.trim('"')) && date != null && Calendar.getInstance().timeInMillis - date.time < 60000) {
                 println("$$$$$$$$$$$$$$$$$$$$$$$$$ ${device["ssid"]} $$$$$$$$$$$$$$$$$$$$$$$")
                 ip = device["ip"].toString()
                 port = device["port"].toString().toInt()

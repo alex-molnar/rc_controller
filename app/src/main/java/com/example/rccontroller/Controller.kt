@@ -214,6 +214,7 @@ class Controller : AppCompatActivity() {
             thread {
                 Channel.sendTurnOffSignal()
             }
+            Thread.sleep(500)
             cleanupAndFinish()
         } else {
             val id = hashes(resources.getResourceEntryName(item.itemId))
