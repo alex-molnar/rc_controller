@@ -428,8 +428,8 @@ class StartActivity : AppCompatActivity() {
 
     private fun waitForResults(seconds: Long = 1, isBluetoothState: Boolean = false) {
         while ({
-                if (isBluetoothState) pendingRequests > 0
-                else bluetoothPairingStatus != PairingStaus.FINISHED
+                if (isBluetoothState) bluetoothPairingStatus != PairingStaus.FINISHED
+                else pendingRequests > 0
             }()) Thread.sleep(1000 * seconds)
     }
 }
