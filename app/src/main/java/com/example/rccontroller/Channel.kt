@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothSocket
 import org.json.JSONObject
 import org.json.JSONTokener
 import java.io.OutputStream
+import java.math.BigInteger
 import java.net.Socket
 import java.nio.charset.Charset
 import java.security.MessageDigest
@@ -31,6 +32,15 @@ object Channel {
     private const val DISTANCE = "distance"
     private const val SPEED = "speed"
     private val POWEROFF_MESSAGE = "POWEROFF".toByteArray(Charset.defaultCharset())
+
+    fun toHexString(hash: ByteArray?): String {
+        val number = BigInteger(1, hash)
+        val hexString = StringBuilder(number.toString(16))
+
+        while (hexString.length < 32) hexString.insert(0, '0')
+
+        return hexString.toString()
+    }
 
     fun connect(
         host: String?,
@@ -59,12 +69,12 @@ object Channel {
                 errorMessage = DEVICE_NOT_AVAILABLE
             }
 
-            // TODO: better hash algorithm
-
             socketWriter.write(
-                MessageDigest.getInstance("SHA-256").digest(
-                    password.toByteArray(Charset.defaultCharset())
-                )
+                toHexString(
+                    MessageDigest.getInstance("SHA-256").digest(
+                        password.toByteArray(Charset.defaultCharset())
+                    )
+                ).toByteArray(Charset.defaultCharset())
             )
 
             if (socketReader.nextLine() != "GRANTED") {
