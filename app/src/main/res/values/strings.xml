@@ -8,10 +8,8 @@
     <!-- UI constants -->
     <string name="password">Password</string>
     <string name="connect">Connect</string>
-    <string name="distance_text">Distance: </string>
-    <string name="distance_measure">cm</string>
-    <string name="speed_text">Speed: </string>
-    <string name="speed_measure">km/h</string>
+    <string name="distance_text">Distance: %.2fcm</string>
+    <string name="speed_text">Speed: %.2fkm/h</string>
     <string name="r_string">R</string>
     <string name="line_label_desc">Line label</string>
     <string name="distance_keeping">Keep Distance</string>

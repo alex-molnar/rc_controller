@@ -89,37 +89,31 @@ object Channel {
         callback(result)
     }
 
-    fun setMessage(keyNullable: String?, value: Boolean) {
-        keyNullable?.let { key ->
-            try {
-                dataTable.put(key, value)
-                socketWriter.write(dataTable.toString().toByteArray(Charset.defaultCharset()))
-            } catch (e: Exception) {
-                println(e.message)
-            }
+    fun setMessage(key: String, value: Boolean) {
+        try {
+            dataTable.put(key, value)
+            socketWriter.write(dataTable.toString().toByteArray(Charset.defaultCharset()))
+        } catch (e: Exception) {
+            println(e.message)
         }
     }
 
-    fun getBoolean(keyNullable: String?): Boolean {
+    fun getBoolean(key: String): Boolean {
         var value = false
-        keyNullable?.let { key ->
-            try {
-                value = dataTable.optBoolean(key, false)
-            } catch (e: Exception) {
-                println(e.message)
-            }
+        try {
+            value = dataTable.optBoolean(key, false)
+        } catch (e: Exception) {
+            println(e.message)
         }
         return value
     }
 
-    fun getDouble(keyNullable: String?, fallback: Double): Double {
+    fun getDouble(key: String, fallback: Double): Double {
         var value = fallback
-        keyNullable?.let { key ->
-            try {
-                value = dataTable.optDouble(key, fallback)
-            } catch (e: Exception) {
-                println(e.message)
-            }
+        try {
+            value = dataTable.optDouble(key, fallback)
+        } catch (e: Exception) {
+            println(e.message)
         }
         return value
     }
