@@ -22,12 +22,31 @@ class Controller : AppCompatActivity() {
     private var isActive: Boolean = true
     private var userReturned: Boolean = true
 
+    private val FORWARD = "forward"
+    private val BACKWARD = "backward"
+    private val LEFT = "turn_left"
+    private val RIGHT = "turn_right"
+    private val HORN = "horn"
+    private val LIGHTS = "lights"
+    private val HAZARD_WARNING = "hazard_warning"
+    private val LEFT_INDICATOR = "left_indicator"
+    private val RIGHT_INDICATOR = "right_indicator"
+    private val REVERSE = "reverse"
+    private val DISTANCE = "distance"
+    private val SPEED = "speed"
+    private val LINE = "line"
+
+    private lateinit var idToMessageMap: HashMap<Int, String>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_controller)
 
         thread {
             Channel.run()
+        }
+
+        thread {
             setEventListeners()
             listen()
         }
@@ -70,111 +89,90 @@ class Controller : AppCompatActivity() {
 
     private fun listen() {
         while (isActive) {
-            val forwardString = hashes(resources.getResourceEntryName(forwardButton.id))
-            val backwardString = hashes(resources.getResourceEntryName(backwardButton.id))
-            val leftString = hashes(resources.getResourceEntryName(leftButton.id))
-            val rightString = hashes(resources.getResourceEntryName(rightButton.id))
-            val lightString = hashes(resources.getResourceEntryName(lightSwitch.id))
-            val hazardString = hashes(resources.getResourceEntryName(hazardWarning.id))
-            val leftIndicatorString = hashes(resources.getResourceEntryName(leftIndicator.id))
-            val rightIndicatorString = hashes(resources.getResourceEntryName(rightIndicator.id))
-            val reverseString = hashes(resources.getResourceEntryName(reverseSwitch.id))
-            val distanceString = hashes(resources.getResourceEntryName(distanceLabel.id))
-            val speedString = hashes(resources.getResourceEntryName(speedLabel.id))
-            val lineString = hashes(resources.getResourceEntryName(lineLabel.id))
 
-            if (Channel.getBoolean(forwardString) && !states.optBoolean(forwardString)) {
-                states.put(forwardString, true)
+            if (Channel.getBoolean(FORWARD) && !states.optBoolean(FORWARD)) {
+                states.put(FORWARD, true)
                 forwardButton.background = getDrawable(R.drawable.ic_keyboard_arrow_up_red_24dp)
-            }
-            else if(!Channel.getBoolean(forwardString) && states.optBoolean(forwardString)) {
-                states.put(forwardString, false)
+            } else if (!Channel.getBoolean(FORWARD) && states.optBoolean(FORWARD)) {
+                states.put(FORWARD, false)
                 forwardButton.background = getDrawable(R.drawable.ic_keyboard_arrow_up_blue_24dp)
             }
 
-            if (Channel.getBoolean(backwardString) && !states.optBoolean(backwardString)) {
-                states.put(backwardString, true)
+            if (Channel.getBoolean(BACKWARD) && !states.optBoolean(BACKWARD)) {
+                states.put(BACKWARD, true)
                 backwardButton.background = getDrawable(R.drawable.ic_keyboard_arrow_down_red_24dp)
-            }
-            else if(!Channel.getBoolean(backwardString) && states.optBoolean(backwardString)) {
-                states.put(backwardString, false)
+            } else if (!Channel.getBoolean(BACKWARD) && states.optBoolean(BACKWARD)) {
+                states.put(BACKWARD, false)
                 backwardButton.background = getDrawable(R.drawable.ic_keyboard_arrow_down_blue_24dp)
             }
 
-            if (Channel.getBoolean(leftString) && !states.optBoolean(leftString)) {
-                states.put(leftString, true)
+            if (Channel.getBoolean(LEFT) && !states.optBoolean(LEFT)) {
+                states.put(LEFT, true)
                 leftButton.background = getDrawable(R.drawable.ic_keyboard_arrow_left_red_24dp)
-            }
-            else if(!Channel.getBoolean(leftString) && states.optBoolean(leftString)) {
-                states.put(leftString, false)
+            } else if (!Channel.getBoolean(LEFT) && states.optBoolean(LEFT)) {
+                states.put(LEFT, false)
                 leftButton.background = getDrawable(R.drawable.ic_keyboard_arrow_left_blue_24dp)
             }
 
-            if (Channel.getBoolean(rightString) && !states.optBoolean(rightString)) {
-                states.put(rightString, true)
+            if (Channel.getBoolean(RIGHT) && !states.optBoolean(RIGHT)) {
+                states.put(RIGHT, true)
                 rightButton.background = getDrawable(R.drawable.ic_keyboard_arrow_right_red_24dp)
-            }
-            else if(!Channel.getBoolean(rightString) && states.optBoolean(rightString)) {
-                states.put(rightString, false)
+            } else if (!Channel.getBoolean(RIGHT) && states.optBoolean(RIGHT)) {
+                states.put(RIGHT, false)
                 rightButton.background = getDrawable(R.drawable.ic_keyboard_arrow_right_blue_24dp)
             }
 
-            if (Channel.getBoolean(lightString) && !states.optBoolean(lightString)) {
-                states.put(lightString, true)
+            if (Channel.getBoolean(LIGHTS) && !states.optBoolean(LIGHTS)) {
+                states.put(LIGHTS, true)
                 lightSwitch.background = getDrawable(R.drawable.ic_highlight_on_24dp)
-            }
-            else if(!Channel.getBoolean(lightString) && states.optBoolean(lightString)) {
-                states.put(lightString, false)
+            } else if (!Channel.getBoolean(LIGHTS) && states.optBoolean(LIGHTS)) {
+                states.put(LIGHTS, false)
                 lightSwitch.background = getDrawable(R.drawable.ic_highlight_off_24dp)
             }
 
-            if (Channel.getBoolean(hazardString) && !states.optBoolean(hazardString)) {
-                states.put(hazardString, true)
+            if (Channel.getBoolean(HAZARD_WARNING) && !states.optBoolean(HAZARD_WARNING)) {
+                states.put(HAZARD_WARNING, true)
                 hazardWarning.background = getDrawable(R.drawable.ic_warning_on_24dp)
-            }
-            else if(!Channel.getBoolean(hazardString) && states.optBoolean(hazardString)) {
-                states.put(hazardString, false)
+            } else if (!Channel.getBoolean(HAZARD_WARNING) && states.optBoolean(HAZARD_WARNING)) {
+                states.put(HAZARD_WARNING, false)
                 hazardWarning.background = getDrawable(R.drawable.ic_warning_off_24dp)
             }
 
-            if (Channel.getBoolean(leftIndicatorString) && !states.optBoolean(leftIndicatorString)) {
-                states.put(leftIndicatorString, true)
+            if (Channel.getBoolean(LEFT_INDICATOR) && !states.optBoolean(LEFT_INDICATOR)) {
+                states.put(LEFT_INDICATOR, true)
                 leftIndicator.background = getDrawable(R.drawable.indicator_on_24dp)
-            }
-            else if(!Channel.getBoolean(leftIndicatorString) && states.optBoolean(leftIndicatorString)) {
-                states.put(leftIndicatorString, false)
+            } else if (!Channel.getBoolean(LEFT_INDICATOR) && states.optBoolean(LEFT_INDICATOR)) {
+                states.put(LEFT_INDICATOR, false)
                 leftIndicator.background = getDrawable(R.drawable.indicator_off_24dp)
             }
 
-            if (Channel.getBoolean(rightIndicatorString) && !states.optBoolean(rightIndicatorString)) {
-                states.put(rightIndicatorString, true)
+            if (Channel.getBoolean(RIGHT_INDICATOR) && !states.optBoolean(RIGHT_INDICATOR)) {
+                states.put(RIGHT_INDICATOR, true)
                 rightIndicator.background = getDrawable(R.drawable.indicator_on_24dp)
-            }
-            else if(!Channel.getBoolean(rightIndicatorString) && states.optBoolean(rightIndicatorString)) {
-                states.put(rightIndicatorString, false)
+            } else if (!Channel.getBoolean(RIGHT_INDICATOR) && states.optBoolean(RIGHT_INDICATOR)) {
+                states.put(RIGHT_INDICATOR, false)
                 rightIndicator.background = getDrawable(R.drawable.indicator_off_24dp)
             }
 
-            if (Channel.getBoolean(reverseString) && !states.optBoolean(reverseString)) {
-                states.put(reverseString, true)
+            if (Channel.getBoolean(REVERSE) && !states.optBoolean(REVERSE)) {
+                states.put(REVERSE, true)
                 reverseSwitch.setTextColor(getColor(R.color.pure_red))
-            }
-            else if(!Channel.getBoolean(reverseString) && states.optBoolean(reverseString)) {
-                states.put(reverseString, false)
+            } else if (!Channel.getBoolean(REVERSE) && states.optBoolean(REVERSE)) {
+                states.put(REVERSE, false)
                 reverseSwitch.setTextColor(getColor(R.color.lightOFF))
             }
 
-            if (Channel.getBoolean(lineString) && !states.optBoolean(lineString)) {
-                states.put(lineString, true)
+            if (Channel.getBoolean(LINE) && !states.optBoolean(LINE)) {
+                states.put(LINE, true)
                 lineLabel.setImageDrawable(getDrawable(R.drawable.ic_more_vert_black_24dp))
-            }
-            else if(!Channel.getBoolean(lineString) && states.optBoolean(lineString)) {
-                states.put(lineString, false)
+            } else if (!Channel.getBoolean(LINE) && states.optBoolean(LINE)) {
+                states.put(LINE, false)
                 lineLabel.setImageDrawable(getDrawable(R.drawable.ic_more_vert_white_24dp))
             }
 
-            val distance = Channel.getDouble(distanceString, 100.0)
-            var text = "${getString(R.string.distance_text)} ${distance}${getString(R.string.distance_measure)}"
+            val distance = Channel.getDouble(DISTANCE, 100.0)
+            var text =
+                "${getString(R.string.distance_text)} ${distance}${getString(R.string.distance_measure)}"
             distanceLabel.text = text
             if (distance < 10) {
                 distanceLabel.setTextColor(getColor(R.color.pure_red))
@@ -185,7 +183,7 @@ class Controller : AppCompatActivity() {
                 distanceLabel.setTextColor(getColor(R.color.colorBackground))
             }
 
-            val speed = Channel.getDouble(speedString, 0.0)
+            val speed = Channel.getDouble(SPEED, 0.0)
             text = "${getString(R.string.speed_text)} ${speed}${getString(R.string.speed_measure)}"
             speedLabel.text = text
             if (speed > 30) {
@@ -201,6 +199,26 @@ class Controller : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
+        menu?.let { optionsMenu ->
+            idToMessageMap = hashMapOf(
+                optionsMenu.getItem(0).itemId to "keep_contained",
+                optionsMenu.getItem(1).itemId to "distance_keeping",
+                optionsMenu.getItem(2).itemId to "change_direction",
+                forwardButton.id to FORWARD,
+                backwardButton.id to BACKWARD,
+                leftButton.id to LEFT,
+                rightButton.id to RIGHT,
+                hornButton.id to HORN,
+                lightSwitch.id to LIGHTS,
+                reverseSwitch.id to REVERSE,
+                hazardWarning.id to HAZARD_WARNING,
+                leftIndicator.id to LEFT_INDICATOR,
+                rightIndicator.id to RIGHT_INDICATOR,
+                distanceLabel.id to DISTANCE,
+                speedLabel.id to SPEED,
+                lineLabel.id to LINE
+            )
+        }
         return true
     }
 
@@ -214,9 +232,9 @@ class Controller : AppCompatActivity() {
             Thread.sleep(500)
             cleanupAndFinish()
         } else {
-            val id = hashes(resources.getResourceEntryName(item.itemId))
+            val message = idToMessageMap[item.itemId]
             thread {
-                Channel.setMessage(id, !Channel.getBoolean(id))
+                Channel.setMessage(message, !Channel.getBoolean(message))
             }
         }
         return true
@@ -225,16 +243,11 @@ class Controller : AppCompatActivity() {
     private val touchEvent = View.OnTouchListener { view, event ->
         thread {
             if (event.action == downEvent && !states.optBoolean(resources.getResourceEntryName(view.id))) {
-                Channel.setMessage(hashes(resources.getResourceEntryName(view.id)), true)
-                states.put(resources.getResourceEntryName(view.id), true)
-            } else if (event.action == upEvent && states.optBoolean(
-                    resources.getResourceEntryName(
-                        view.id
-                    )
-                )
-            ) {
-                Channel.setMessage(hashes(resources.getResourceEntryName(view.id)), false)
-                states.put(resources.getResourceEntryName(view.id), false)
+                Channel.setMessage(idToMessageMap[view.id], true)
+                states.put(idToMessageMap[view.id], true)
+            } else if (event.action == upEvent && states.optBoolean(idToMessageMap[view.id])) {
+                Channel.setMessage(idToMessageMap[view.id], false)
+                states.put(idToMessageMap[view.id], false)
             }
         }
         true
@@ -244,31 +257,9 @@ class Controller : AppCompatActivity() {
         if (event.action == downEvent) {
             view as CompoundButton
             thread {
-                Channel.setMessage(hashes(resources.getResourceEntryName(view.id)), !view.isChecked)
+                Channel.setMessage(idToMessageMap[view.id], !view.isChecked)
             }
         }
         false
-    }
-
-    private fun hashes(key: String): String {
-        return when(key) {
-            "forwardButton" -> "forward"
-            "backwardButton" -> "backward"
-            "leftButton" -> "turn_left"
-            "rightButton" -> "turn_right"
-            "hornButton" -> "horn"
-            "lightSwitch" -> "lights"
-            "reverseSwitch" -> "reverse"
-            "hazardWarning" -> "hazard_warning"
-            "leftIndicator" -> "left_indicator"
-            "rightIndicator" -> "right_indicator"
-            "distanceLabel" -> "distance"
-            "speedLabel" -> "speed"
-            "lineLabel" -> "line"
-            "distanceKeepingItem" -> "distance_keeping"
-            "keepContainedItem" -> "keep_contained"
-            "changeDirectionItem" -> "change_direction"
-            else -> ""
-        }
     }
 }
