@@ -1,5 +1,6 @@
 package com.example.rccontroller
 
+import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
@@ -236,18 +237,26 @@ class Controller : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.exitItem) {
-            cleanupAndFinish()
-        } else if (item.itemId == R.id.powerOffItem) {
-            thread {
-                Channel.sendTurnOffSignal()
+        when (item.itemId) {
+            R.id.exitItem -> {
+                cleanupAndFinish()
             }
-            Thread.sleep(500)
-            cleanupAndFinish()
-        } else {
-            val message = checkNotNull(idToAttributes[item.itemId]?.message)
-            thread {
-                Channel.setMessage(message, !Channel.getBoolean(message))
+            R.id.powerOffItem -> {
+                thread {
+                    Channel.sendTurnOffSignal()
+                }
+                Thread.sleep(500)
+                cleanupAndFinish()
+            }
+            R.id.changePasswordItem -> {
+                val intentChangePassword = Intent(this, PasswordActivity::class.java)
+                startActivity(intentChangePassword)
+            }
+            else -> {
+                val message = checkNotNull(idToAttributes[item.itemId]?.message)
+                thread {
+                    Channel.setMessage(message, !Channel.getBoolean(message))
+                }
             }
         }
         return true

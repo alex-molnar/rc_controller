@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
                     val intentController = Intent(this, Controller::class.java)
                     startActivity(intentController)
                 } else {
-                    Snackbar.make(view, Channel.errorMessage, Snackbar.LENGTH_INDEFINITE).show()
+                    Snackbar.make(view, Channel.errorMessage, Snackbar.LENGTH_LONG).show()
                 }
             }
         }

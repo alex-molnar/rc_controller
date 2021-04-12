@@ -6,7 +6,7 @@
     <string name="empty_string"> </string>
 
     <!-- UI constants -->
-    <string name="password">Password</string>
+    <string name="password">Pin</string>
     <string name="connect">Connect</string>
     <string name="distance_text">Distance: %.2fcm</string>
     <string name="speed_text">Speed: %.2fkm/h</string>
@@ -19,6 +19,17 @@
     <string name="poweroff">Turn Off System</string>
     <string name="hot_road">Hot Road</string>
     <string name="retry">Try Again</string>
+    <string name="change_password">Change name/password</string>
+    <string name="name">Name</string>
+    <string name="old_password">Old Pin</string>
+    <string name="new_password">New Pin</string>
+    <string name="new_password_again">New Pin Again</string>
+    <string name="empty_note">If you leave either the name, or the new password empty, they will remain the same.</string>
+    <string name="send">Send</string>
+    <string name="password_empty">The old password field must not be empty!</string>
+    <string name="password_not_match">The Pins you provided did not match!</string>
+    <string name="password_incorrect">The pin you provided was incorrect!</string>
+    <string name="password_success">The requested values were set successfully! You need to restart the car, in order for the changes to be applied.</string>
 
     <!-- Permission/Connectivity Descriptions/Errors-->
     <string name="ACCESS_WIFI_STATE"> ❗ The WIFI state permission is needed to detect the RC car on your network, so the app can autoconnect to it.\n</string>

@@ -22,6 +22,8 @@ object Channel {
     var isConnectionActive: Boolean = true
     lateinit var errorMessage: String
 
+    private var setPassworCallback: (Boolean) -> Unit = { }
+
     private const val uuid: String = "94f39d29-7d6d-583a-973b-fba39e49d4ee"
     private const val DEVICE_NOT_AVAILABLE =
         "The device discovered is no longer available, try a new device!"
@@ -32,6 +34,7 @@ object Channel {
     private const val DISTANCE = "distance"
     private const val SPEED = "speed"
     private val POWEROFF_MESSAGE = "POWEROFF".toByteArray(Charset.defaultCharset())
+    private val MODIFY_REQUEST = "modify"
 
     fun toHexString(hash: ByteArray?): String {
         val number = BigInteger(1, hash)
@@ -98,6 +101,40 @@ object Channel {
         }
     }
 
+    fun setPasswordChangeRequest(
+        name: String,
+        oldPassword: String,
+        newPassword: String,
+        callback: (Boolean) -> Unit
+    ) {
+        setPassworCallback = callback
+
+        val data = JSONObject()
+        data.put(MODIFY_REQUEST, true)
+        if (name != "") data.put("name", name)
+        if (newPassword != "") data.put(
+            "new_password", toHexString(
+                MessageDigest.getInstance("SHA-256").digest(
+                    newPassword.toByteArray(Charset.defaultCharset())
+                )
+            )
+        )
+
+        data.put(
+            "old_password", toHexString(
+                MessageDigest.getInstance("SHA-256").digest(
+                    oldPassword.toByteArray(Charset.defaultCharset())
+                )
+            )
+        )
+
+        try {
+            socketWriter.write(data.toString().toByteArray(Charset.defaultCharset()))
+        } catch (e: Exception) {
+            println(e.message)
+        }
+    }
+
     fun getBoolean(key: String): Boolean {
         var value = false
         try {
@@ -122,11 +159,15 @@ object Channel {
         while (isConnectionActive) {
             try {
                 val received = (JSONTokener(socketReader.nextLine()).nextValue() as JSONObject)
-                received.keys().forEach { key ->
-                    if (key == DISTANCE || key == SPEED) {
-                        dataTable.put(key, received.getDouble(key))
-                    } else {
-                        dataTable.put(key, received.getBoolean(key))
+                if (received.has(MODIFY_REQUEST)) {
+                    setPassworCallback(received.getBoolean(MODIFY_REQUEST))
+                } else {
+                    received.keys().forEach { key ->
+                        if (key == DISTANCE || key == SPEED) {
+                            dataTable.put(key, received.getDouble(key))
+                        } else {
+                            dataTable.put(key, received.getBoolean(key))
+                        }
                     }
                 }
             }

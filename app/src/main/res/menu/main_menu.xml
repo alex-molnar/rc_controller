@@ -11,6 +11,9 @@
         android:id="@+id/changeDirectionItem"
         android:title="@string/change_direction" />
     <item
+        android:id="@+id/changePasswordItem"
+        android:title="@string/change_password" />
+    <item
         android:id="@+id/exitItem"
         android:title="@string/exit" />
     <item
