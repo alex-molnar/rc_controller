@@ -154,6 +154,9 @@ class StartActivity : AppCompatActivity() {
     override fun onRestart() {
         super.onRestart()
         thread {
+            ip = null
+            port = null
+            bluetoothDevice = null
             connect()
         }
     }

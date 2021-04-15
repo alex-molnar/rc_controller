@@ -17,6 +17,9 @@ class MainActivity : AppCompatActivity() {
 
         thread {
             connectButton.setOnClickListener(onConnectClicked)
+            restartDiscoveryButton.setOnClickListener() {
+                finish()
+            }
         }
     }
 
