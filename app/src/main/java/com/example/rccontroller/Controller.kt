@@ -223,11 +223,6 @@ class Controller : AppCompatActivity() {
                     "distance_keeping",
                     R.drawable.ic_hotroad.draw(),
                     R.drawable.ic_hotroad.draw()
-                ),
-                optionsMenu.getItem(2).itemId to ViewAttributes(
-                    "change_direction",
-                    R.drawable.ic_hotroad.draw(),
-                    R.drawable.ic_hotroad.draw()
                 )
             )
             idToAttributes[speedLabel.id]?.textId = R.string.speed_text

@@ -8,9 +8,6 @@
         android:id="@+id/distanceKeepingItem"
         android:title="@string/distance_keeping" />
     <item
-        android:id="@+id/changeDirectionItem"
-        android:title="@string/change_direction" />
-    <item
         android:id="@+id/changePasswordItem"
         android:title="@string/change_password" />
     <item

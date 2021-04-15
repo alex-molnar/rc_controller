@@ -12,14 +12,13 @@
     <string name="speed_text">Speed: %.2fkm/h</string>
     <string name="r_string">R</string>
     <string name="line_label_desc">Line label</string>
-    <string name="distance_keeping">Keep Distance</string>
-    <string name="keep_contained">Keep Contained</string>
-    <string name="change_direction">Change Turning Direction</string>
+    <string name="distance_keeping">Object Avoiding Mode</string>
+    <string name="keep_contained">Stop On Black Line Mode</string>
+    <string name="change_password">Change name/password</string>
     <string name="exit">Exit Application</string>
     <string name="poweroff">Turn Off System</string>
     <string name="hot_road">Hot Road</string>
     <string name="retry">Try Again</string>
-    <string name="change_password">Change name/password</string>
     <string name="name">Name</string>
     <string name="old_password">Old Pin</string>
     <string name="new_password">New Pin</string>
