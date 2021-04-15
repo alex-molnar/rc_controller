@@ -19,24 +19,29 @@ object Channel {
 
     private val dataTable = JSONObject()
 
-    var isConnectionActive: Boolean = true
+    var isConnectionActive: Boolean = false
     lateinit var errorMessage: String
 
     private var setPassworCallback: (Boolean) -> Unit = { }
 
     private const val uuid: String = "94f39d29-7d6d-583a-973b-fba39e49d4ee"
     private const val DEVICE_NOT_AVAILABLE =
-        "The device discovered is no longer available, try a new device!"
+        "The device discovered is no longer available, please restart the discovery!"
     private const val ACCESS_DENIED =
         "ACCESS DENIED! Try another password, or try to connect ot another device!"
     private const val NEWORK_EXCEPTION =
-        "Something came up during the connection! Please check if the device is still available, and try to conenct again!"
+        "Something came up during the connection! Please check if the device is still available, and restart the discovery!"
+    private const val ACCESS_FINAL_DENIAL =
+        "You provided the wrong pin three times! Please make sure you try to connect ot the correct device, and restart the discovery."
     private const val DISTANCE = "distance"
     private const val SPEED = "speed"
     private val POWEROFF_MESSAGE = "POWEROFF".toByteArray(Charset.defaultCharset())
-    private val MODIFY_REQUEST = "modify"
+    private const val MODIFY_REQUEST = "modify"
+    private const val GRANTED = "granted"
+    private const val REJECTED = "rejected"
+    private const val FINAL_REJECTION = "final_rejection"
 
-    fun toHexString(hash: ByteArray?): String {
+    private fun toHexString(hash: ByteArray?): String {
         val number = BigInteger(1, hash)
         val hexString = StringBuilder(number.toString(16))
 
@@ -50,26 +55,34 @@ object Channel {
         port: Int,
         bluetoothDevice: BluetoothDevice?,
         password: String,
-        callback: (Boolean) -> Unit
+        callback: (Boolean, Boolean) -> Unit
     ) {
 
         var result = true
+        var fatalError = false
+
         try {
-            if (host != null && port > 0) {
-                socket = Socket(host, port)
-                socket?.let { notNullableSocket ->
-                    socketWriter = notNullableSocket.getOutputStream()
-                    socketReader = Scanner(notNullableSocket.getInputStream())
+            if (!isConnectionActive) {
+                if (host != null && port > 0) {
+                    socket = Socket(host, port)
+                    socket?.let { notNullableSocket ->
+                        socketWriter = notNullableSocket.getOutputStream()
+                        socketReader = Scanner(notNullableSocket.getInputStream())
+                        isConnectionActive = true
+                    }
+                } else if (bluetoothDevice != null) {
+                    btsocket =
+                        bluetoothDevice.createRfcommSocketToServiceRecord(UUID.fromString(uuid))
+                    btsocket?.let { notNullableSocket ->
+                        notNullableSocket.connect()
+                        socketWriter = notNullableSocket.outputStream
+                        socketReader = Scanner(notNullableSocket.inputStream)
+                        isConnectionActive = true
+                    }
+                } else {
+                    errorMessage = DEVICE_NOT_AVAILABLE
+                    fatalError = true
                 }
-            } else if (bluetoothDevice != null) {
-                btsocket = bluetoothDevice.createRfcommSocketToServiceRecord(UUID.fromString(uuid))
-                btsocket?.let { notNullableSocket ->
-                    notNullableSocket.connect()
-                    socketWriter = notNullableSocket.outputStream
-                    socketReader = Scanner(notNullableSocket.inputStream)
-                }
-            } else {
-                errorMessage = DEVICE_NOT_AVAILABLE
             }
 
             socketWriter.write(
@@ -80,16 +93,29 @@ object Channel {
                 ).toByteArray(Charset.defaultCharset())
             )
 
-            if (socketReader.nextLine() != "GRANTED") {
-                errorMessage = ACCESS_DENIED
-                result = false
+            when (socketReader.nextLine()) {
+                REJECTED -> {
+                    errorMessage = ACCESS_DENIED
+                    result = false
+                }
+                FINAL_REJECTION -> {
+                    errorMessage = ACCESS_FINAL_DENIAL
+                    result = false
+                    fatalError = true
+                    isConnectionActive = false
+                }
+                GRANTED -> {
+                    result = true
+                }
             }
         } catch (e: Exception) {
             errorMessage = NEWORK_EXCEPTION
             println(errorMessage)
             result = false
+            fatalError = true
+            isConnectionActive = false
         }
-        callback(result)
+        callback(result, fatalError)
     }
 
     fun setMessage(key: String, value: Boolean) {

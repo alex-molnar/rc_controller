@@ -1,6 +1,8 @@
 package com.example.rccontroller
 
+import android.app.AlertDialog
 import android.bluetooth.BluetoothDevice
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -34,12 +36,25 @@ class MainActivity : AppCompatActivity() {
                 port,
                 bluetoothDevice,
                 "69420" /*password.text.toString()*/
-            ) { result ->
-                if (result) {
-                    val intentController = Intent(this, Controller::class.java)
-                    startActivity(intentController)
-                } else {
-                    Snackbar.make(view, Channel.errorMessage, Snackbar.LENGTH_LONG).show()
+            ) { result, fatalError ->
+                when {
+                    result -> {
+                        val intentController = Intent(this, Controller::class.java)
+                        startActivity(intentController)
+                    }
+                    fatalError -> {
+                        runOnUiThread {
+                            AlertDialog.Builder(this)
+                                .setIcon(R.drawable.ic_hotroad)
+                                .setNeutralButton("OK") { _: DialogInterface, _: Int -> finish() }
+                                .setTitle("SUCCESS")
+                                .setMessage(Channel.errorMessage)
+                                .show()
+                        }
+                    }
+                    else -> {
+                        Snackbar.make(view, Channel.errorMessage, Snackbar.LENGTH_LONG).show()
+                    }
                 }
             }
         }
