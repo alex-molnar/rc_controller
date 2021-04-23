@@ -42,6 +42,7 @@
     <string name="TURN_BLUETOOTH_ON"> ⓘ If you enable the app to turn on your bluetooth, you give us a higher chance to autodetect bluetooth devices near you.</string>
     <string name="BOTH_DEVICES_OFF"> ❗ Could not make a search, since both bluetooth, and wifi is turned off.\n</string>
     <string name="UNSUCCESSFUL_SEARCH"> ⚠ Search for devices was unsuccessful on</string>
+    <string name="CAESAR_UNREACHABLE"> ❗ The Caesar server was unreachable, so we could not search for devices on your network!\n</string>
     <string name="PERMISSION_ERROR">Ooops. Looks like you did not accept our access to some permission that necessary to the applications usage. We could not continue without those permissions.</string>
     <string name="NO_DEVICES_ERROR">Ooops. Sorry, it looks like we could not find any active cars near you! If you are sure the car is active, try moving closer, or restart the device.</string>
 

@@ -14,9 +14,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
+import com.github.kittinunf.fuel.httpGet
 import com.skyfishjy.library.RippleBackground
-import io.github.rybalkinsd.kohttp.ext.asString
-import io.github.rybalkinsd.kohttp.ext.httpGet
 import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONTokener
@@ -69,6 +68,9 @@ class StartActivity : AppCompatActivity() {
     private var ip: String? = null
     private var port: Int? = null
     private var bluetoothDevice: BluetoothDevice? = null
+
+    private var response: JSONArray = JSONTokener("[]").nextValue() as JSONArray
+    private var caesarReachable = true
 
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(contxt: Context?, intent: Intent?) {
@@ -334,6 +336,9 @@ class StartActivity : AppCompatActivity() {
                     getString(R.string.UNSUCCESSFUL_SEARCH) +
                             " BLUETOOTH.\n" +
                             getString(R.string.TURN_WIFI_ON)
+                !caesarReachable && correctableBTError ->
+                    getString(R.string.CAESAR_UNREACHABLE) +
+                            getString(R.string.TURN_BLUETOOTH_ON)
                 correctableBTError ->
                     getString(R.string.UNSUCCESSFUL_SEARCH) +
                             " WIFI.\n" +
@@ -359,19 +364,29 @@ class StartActivity : AppCompatActivity() {
 
     private fun searchForLanDevices(): Boolean {
         println("Searching for LAN devices...")
-        val connMgr = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connMgr = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
         val iface = connMgr.getLinkProperties(connMgr.activeNetwork)?.interfaceName
 
         if (iface == null) {
             correctableWifiError = true
         } else {
-            val response: JSONArray = (
-                    JSONTokener(CAESAR_URL.httpGet().asString()).nextValue() as JSONArray
-                    )
-            if (response.length() > 0 && iface == IFACE_WIFI) {
-                return scanForLanDevices(response)
-            } else if (response.length() > 0) {
-                correctableWifiError = true
+            pendingRequests++
+            try {
+                CAESAR_URL.httpGet().timeout(1000).response { _, resp, _ ->
+                    response =
+                        JSONTokener(String(resp.body().toByteArray())).nextValue() as JSONArray
+                    pendingRequests--
+                }
+                waitForResults()
+                if (response.length() > 0 && iface == IFACE_WIFI) {
+                    return scanForLanDevices(response)
+                } else if (response.length() > 0) {
+                    correctableWifiError = true
+                }
+            } catch (e: Exception) {
+                pendingRequests = 0
+                caesarReachable = false
+                println(e.message)
             }
         }
         return false
