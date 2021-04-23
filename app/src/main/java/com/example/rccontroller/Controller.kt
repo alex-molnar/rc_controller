@@ -28,7 +28,7 @@ class Controller : AppCompatActivity() {
     }
 
     private val downEvent = 0
-    private val upEvent = 1
+    private val refreshEvent = 2
 
     private val states: JSONObject = JSONObject()
 
@@ -37,6 +37,7 @@ class Controller : AppCompatActivity() {
 
     private lateinit var idToAttributes: HashMap<Int, ViewAttributes>
     private lateinit var views: ArrayList<View>
+    private lateinit var buttonsPressed: HashMap<Int, Boolean>
 
     private fun Int.draw(): Drawable {
         return checkNotNull(getDrawable(this))
@@ -59,11 +60,10 @@ class Controller : AppCompatActivity() {
         }
 
         val message = checkNotNull(idToAttributes[this.id]?.message)
-        if (Channel.getBoolean(message) && !states.optBoolean(message)) {
-            states.put(message, true)
+        states.put(message, Channel.getBoolean(message))
+        if (Channel.getBoolean(message)) {
             lambdaOn()
-        } else if (!Channel.getBoolean(message) && states.optBoolean(message)) {
-            states.put(message, false)
+        } else {
             lambdaOff()
         }
     }
@@ -94,6 +94,13 @@ class Controller : AppCompatActivity() {
             forwardButton, backwardButton, leftButton, rightButton, reverseSwitch, hornButton,
             lightSwitch, leftIndicator, rightIndicator, hazardWarning,
             distanceLabel, lineLabel, speedLabel
+        )
+        buttonsPressed = hashMapOf(
+            forwardButton.id to false,
+            backwardButton.id to false,
+            leftButton.id to false,
+            rightButton.id to false,
+            hornButton.id to false
         )
 
         thread {
@@ -257,24 +264,33 @@ class Controller : AppCompatActivity() {
         return true
     }
 
-    private val touchEvent = View.OnTouchListener { view, event ->
-        thread {
-            val message = checkNotNull(idToAttributes[view.id]?.message)
-            if (event.action == downEvent && !states.optBoolean(resources.getResourceEntryName(view.id))) {
-                Channel.setMessage(message, true)
-                states.put(message, true)
-            } else if (event.action == upEvent && states.optBoolean(message)) {
-                Channel.setMessage(message, false)
-                states.put(message, false)
-            }
+    private fun recursiveButtonPressCheck(buttonID: Int) {
+        if (checkNotNull(buttonsPressed[buttonID])) {
+            buttonsPressed[buttonID] = false
+            Handler().postDelayed({ recursiveButtonPressCheck(buttonID) }, 30)
+        } else {
+            thread { Channel.setMessage(checkNotNull(idToAttributes[buttonID]?.message), false) }
+            states.put(checkNotNull(idToAttributes[buttonID]?.message), false)
         }
-        true
+    }
+
+    private val touchEvent = View.OnTouchListener { view, event ->
+        val message = checkNotNull(idToAttributes[view.id]?.message)
+        if (event.action == downEvent) {
+            thread { Channel.setMessage(message, true) }
+            states.put(message, true)
+            buttonsPressed[view.id] = false
+            Handler().postDelayed({ recursiveButtonPressCheck(view.id) }, 30)
+        } else if (event.action == refreshEvent) {
+            buttonsPressed[view.id] = true
+        }
+        false
     }
 
     private val toggleEvent = View.OnTouchListener { view, event ->
-        if (event.action == downEvent) {
-            view as CompoundButton
-            thread {
+        thread {
+            if (event.action == downEvent) {
+                view as CompoundButton
                 Channel.setMessage(checkNotNull(idToAttributes[view.id]?.message), !view.isChecked)
             }
         }
