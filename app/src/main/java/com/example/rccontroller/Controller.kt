@@ -41,7 +41,7 @@ class Controller : AppCompatActivity() {
     private lateinit var buttonsPressed: HashMap<Int, Boolean>
 
     private fun Int.draw(): Drawable {
-        return checkNotNull(getDrawable(this))
+        return getDrawable(this)!!
     }
 
     private fun View.update() {
@@ -60,7 +60,7 @@ class Controller : AppCompatActivity() {
             }
         }
 
-        val message = checkNotNull(idToAttributes[this.id]?.message)
+        val message = idToAttributes[this.id]!!.message
         states.put(message, Channel.getBoolean(message))
         if (Channel.getBoolean(message)) {
             lambdaOn()
@@ -70,8 +70,8 @@ class Controller : AppCompatActivity() {
     }
 
     private fun TextView.update() {
-        val value = Channel.getDouble(checkNotNull(idToAttributes[this.id]?.message), 0.0)
-        this.text = getString(checkNotNull(idToAttributes[this.id]?.textId), value)
+        val value = Channel.getDouble(idToAttributes[this.id]!!.message, 0.0)
+        this.text = getString(idToAttributes[this.id]!!.textId!!, value)
         this.setTextColor(
             getColor(
                 when {
@@ -258,7 +258,7 @@ class Controller : AppCompatActivity() {
                 startActivity(intentChangePassword)
             }
             else -> {
-                val message = checkNotNull(idToAttributes[item.itemId]?.message)
+                val message = idToAttributes[item.itemId]!!.message
                 thread {
                     Channel.setMessage(message, !Channel.getBoolean(message))
                 }
@@ -268,17 +268,17 @@ class Controller : AppCompatActivity() {
     }
 
     private fun recursiveButtonPressCheck(buttonID: Int) {
-        if (checkNotNull(buttonsPressed[buttonID])) {
+        if (buttonsPressed[buttonID]!!) {
             buttonsPressed[buttonID] = false
             Handler().postDelayed({ recursiveButtonPressCheck(buttonID) }, 30)
         } else {
-            thread { Channel.setMessage(checkNotNull(idToAttributes[buttonID]?.message), false) }
-            states.put(checkNotNull(idToAttributes[buttonID]?.message), false)
+            thread { Channel.setMessage(idToAttributes[buttonID]!!.message, false) }
+            states.put(idToAttributes[buttonID]!!.message, false)
         }
     }
 
     private val touchEvent = View.OnTouchListener { view, event ->
-        val message = checkNotNull(idToAttributes[view.id]?.message)
+        val message = idToAttributes[view.id]!!.message
         if (event.action == downEvent) {
             thread { Channel.setMessage(message, true) }
             states.put(message, true)
@@ -294,7 +294,7 @@ class Controller : AppCompatActivity() {
         thread {
             if (event.action == downEvent) {
                 view as CompoundButton
-                Channel.setMessage(checkNotNull(idToAttributes[view.id]?.message), !view.isChecked)
+                Channel.setMessage(idToAttributes[view.id]!!.message, !view.isChecked)
             }
         }
         false
