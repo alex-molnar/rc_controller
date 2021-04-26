@@ -17,6 +17,7 @@
     <string name="change_password">Change name/password</string>
     <string name="exit">Exit Application</string>
     <string name="poweroff">Turn Off System</string>
+    <string name="restart">Restart System</string>
     <string name="hot_road">Hot Road</string>
     <string name="retry">Try Again</string>
     <string name="name">Name</string>
