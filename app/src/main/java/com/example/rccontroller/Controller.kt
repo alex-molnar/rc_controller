@@ -12,6 +12,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
+import debug
 import kotlinx.android.synthetic.main.activity_controller.*
 import org.json.JSONObject
 import kotlin.concurrent.thread
@@ -137,11 +138,13 @@ class Controller : AppCompatActivity() {
                 cleanupAndFinish()
             }
         }, 30000)
+        debug { "Activity stopped" }
         super.onStop()
     }
 
     override fun onRestart() {
         userReturned = true
+        debug { "Activity restarted" }
         super.onRestart()
     }
 

@@ -16,9 +16,12 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import com.github.kittinunf.fuel.httpGet
 import com.skyfishjy.library.RippleBackground
+import debug
+import info
 import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONTokener
+import warn
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -80,14 +83,14 @@ class StartActivity : AppCompatActivity() {
                         intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
                     btdevice?.let { device ->
                         if (device.name == BLUETOOTH_NAME) {
-                            println("discovered ${device.name} with address ${device.address} already paired: ${device.bondState == BluetoothDevice.BOND_BONDED}")
+                            info { "Discovered bluetooth device, with address ${device.address}" }
                             if (device.bondState == BluetoothDevice.BOND_BONDED) {
                                 bluetoothDevice = device
                                 bluetoothPairingStatus = PairingStaus.FINISHED
-                                println("Device already bonded, set to device")
+                                debug { "Device already paired, set to device" }
                             } else {
                                 bluetoothPairingStatus = PairingStaus.BONDING
-                                println("Started bonding process")
+                                debug { "Device not paired yet, started bonding process now" }
                                 device.createBond()
                             }
                             BluetoothAdapter.getDefaultAdapter().cancelDiscovery()
@@ -95,15 +98,13 @@ class StartActivity : AppCompatActivity() {
                     }
                 }
                 BluetoothDevice.ACTION_BOND_STATE_CHANGED -> {
-                    println("\n\n\n######################BOND STATE CHNAGE###########################\n\n\n")
                     if (intent.getIntExtra(
                             BluetoothDevice.EXTRA_BOND_STATE,
                             69
                         ) == BluetoothDevice.BOND_BONDED
                     ) {
-                        bluetoothDevice =
-                            intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
-                        println("Device paired, set to device")
+                        bluetoothDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+                        debug { "Device paired, set to device" }
                         bluetoothPairingStatus = PairingStaus.FINISHED
                     } else if (intent.getIntExtra(
                             BluetoothDevice.EXTRA_BOND_STATE,
@@ -113,12 +114,12 @@ class StartActivity : AppCompatActivity() {
                             69
                         ) == BluetoothDevice.BOND_BONDING
                     ) {
-                        println("Pairing request denied by user")
+                        warn { "Pairing request denied by user" }
                         bluetoothPairingStatus = PairingStaus.FINISHED
                     }
                 }
                 BluetoothAdapter.ACTION_DISCOVERY_FINISHED -> {
-                    println("\n\n\n######################DISC FIN###########################\n\n\n")
+                    debug { "Bluetooth discovery finished" }
                     // The if statement needed, because if a device found, we cancel the discovery,
                     // to save resources, hence triggering this event, but in this case it is not
                     // the expected behavior to finish the pairing
@@ -127,7 +128,7 @@ class StartActivity : AppCompatActivity() {
                     }
                 }
                 BluetoothAdapter.ACTION_DISCOVERY_STARTED -> {
-                    println("\n\n\n#####################DISC START##########################\n\n\n")
+                    debug { "Bluetooth discovery started" }
                 }
             }
         }
@@ -155,6 +156,7 @@ class StartActivity : AppCompatActivity() {
 
     override fun onRestart() {
         super.onRestart()
+        debug { "Activity restarted" }
         thread {
             ip = null
             port = null
@@ -164,6 +166,7 @@ class StartActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        debug { "Activity destroyed" }
         unregisterReceiver(receiver)
         super.onDestroy()
     }
@@ -217,7 +220,7 @@ class StartActivity : AppCompatActivity() {
             deniedPermissions.add(permission)
         }
 
-        println(responseString)
+        info { responseString }
         pendingRequests--
     }
 
@@ -243,13 +246,13 @@ class StartActivity : AppCompatActivity() {
         val intentError = Intent(this, ErrorActivity::class.java)
 
         if (searchForDevice()) {
-            println("DEVICE FOUND LAUNCHING MAIN ACTIVITY")
+            info { "Device found successfully, launching main activity now" }
             intentMain.putExtra("IP", ip)
             intentMain.putExtra("PORT", port)
             intentMain.putExtra("DEV", bluetoothDevice)
             startActivity(intentMain)
         } else {
-            println("DEVICE NOT FOUND LAUNCHING ERROR ACTIVITY")
+
             intentError.putExtra(
                 getString(R.string.error),
                 if (!isNecessaryWifiPermissionsGranted && !isNecessaryBTPermissionsGranted) {
@@ -258,6 +261,7 @@ class StartActivity : AppCompatActivity() {
                     getString(R.string.NO_DEVICES_ERROR)
                 }
             )
+            warn { "No device found, launching error activity now" }
             startActivity(intentError)
         }
     }
@@ -285,7 +289,7 @@ class StartActivity : AppCompatActivity() {
             }
 
             if (!res) {
-                println("Requesting permission for: $permission")
+                info { "Requesting permission for: $permission" }
                 pendingRequests++
                 ActivityCompat.requestPermissions(
                     this,
@@ -293,21 +297,22 @@ class StartActivity : AppCompatActivity() {
                     request
                 )
             } else {
-                println("$permission already has been granted")
+                debug { "$permission already has been granted" }
             }
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (
                 ContextCompat.checkSelfPermission(
-                    baseContext, android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                    baseContext, ACCESS_BACKGROUND_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
+                info { "Requesting permission for: $ACCESS_BACKGROUND_LOCATION" }
                 isNecessaryBTPermissionsGranted = false
                 pendingRequests++
                 ActivityCompat.requestPermissions(
                     this,
-                    arrayOf(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                    arrayOf(ACCESS_BACKGROUND_LOCATION),
                     REQUEST_ACCESS_BACKGROUND_LOCATION
                 )
             }
@@ -323,7 +328,6 @@ class StartActivity : AppCompatActivity() {
         if (!deviceFound && isNecessaryBTPermissionsGranted) {
             deviceFound = searchForBTDevices()
         }
-        println("After one round deviceFound: $deviceFound")
 
         if (!deviceFound) {
             val message = when {
@@ -358,17 +362,16 @@ class StartActivity : AppCompatActivity() {
             }
         }
 
-        println("Finished with your shit res: $deviceFound, ip: $ip, port: $port, dev: ${bluetoothDevice?.address}")
         return deviceFound
     }
 
     private fun searchForLanDevices(): Boolean {
-        println("Searching for LAN devices...")
         val connMgr = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
         val iface = connMgr.getLinkProperties(connMgr.activeNetwork)?.interfaceName
 
         if (iface == null) {
             correctableWifiError = true
+            warn { "No internet connection" }
         } else {
             pendingRequests++
             try {
@@ -386,22 +389,21 @@ class StartActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 pendingRequests = 0
                 caesarReachable = false
-                println(e.message)
+                warn { e.message!! }
             }
         }
         return false
     }
 
     private fun searchForBTDevices(): Boolean {
-        println("Searching for BT devices")
         val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
 
         return if (bluetoothAdapter == null) {
-            println("Bluetooth not supported")
+            warn { "Bluetooth not supported on this device" }
             false
         } else {
             if (!bluetoothAdapter.isEnabled) {
-                println("Bluetooth off")
+                info { "Bluetooth turned off on this device" }
                 val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
                 startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
 
@@ -426,9 +428,9 @@ class StartActivity : AppCompatActivity() {
                 Locale.getDefault()
             ).parse(device["time_stamp"].toString())
             if (device["ssid"].equals(ssid.trim('"')) && date != null && Calendar.getInstance().timeInMillis - date.time < 60000) {
-                println("$$$$$$$$$$$$$$$$$$$$$$$$$ ${device["ssid"]} $$$$$$$$$$$$$$$$$$$$$$$")
                 ip = device["ip"].toString()
                 port = device["port"].toString().toInt()
+                info { "LAN device found with ip: $ip, port: $port" }
                 return true
             }
         }
@@ -440,7 +442,9 @@ class StartActivity : AppCompatActivity() {
         adapter.startDiscovery()
         waitForResults(2, true)
 
-        println("BT Discovery process ended. result: ${bluetoothDevice != null}")
+        if (bluetoothDevice != null) {
+            info { "BT found with address: ${bluetoothDevice!!.address}" }
+        }
         return bluetoothDevice != null
     }
 

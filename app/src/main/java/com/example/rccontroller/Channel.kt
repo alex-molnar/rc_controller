@@ -2,6 +2,7 @@ package com.example.rccontroller
 
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
+import debug
 import org.json.JSONObject
 import org.json.JSONTokener
 import java.io.OutputStream
@@ -111,7 +112,7 @@ object Channel {
             }
         } catch (e: Exception) {
             errorMessage = NEWORK_EXCEPTION
-            println(errorMessage)
+            debug { errorMessage }
             result = false
             fatalError = true
             isConnectionActive = false
@@ -124,7 +125,7 @@ object Channel {
             dataTable.put(key, value)
             socketWriter.write(dataTable.toString().toByteArray(Charset.defaultCharset()))
         } catch (e: Exception) {
-            println(e.message)
+            debug { e.message!! }
         }
     }
 
