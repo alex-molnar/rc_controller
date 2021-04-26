@@ -185,15 +185,12 @@ object Channel {
         while (isConnectionActive) {
             try {
                 val received = (JSONTokener(socketReader.nextLine()).nextValue() as JSONObject)
-                if (received.has(MODIFY_REQUEST)) {
-                    setPassworCallback(received.getBoolean(MODIFY_REQUEST))
-                } else {
-                    received.keys().forEach { key ->
-                        if (key == DISTANCE || key == SPEED) {
-                            dataTable.put(key, received.getDouble(key))
-                        } else {
-                            dataTable.put(key, received.getBoolean(key))
-                        }
+
+                received.keys().forEach { key ->
+                    when (key) {
+                        DISTANCE, SPEED -> dataTable.put(key, received.getDouble(key))
+                        MODIFY_REQUEST -> setPassworCallback(received.getBoolean(key))
+                        else -> dataTable.put(key, received.getBoolean(key))
                     }
                 }
             }

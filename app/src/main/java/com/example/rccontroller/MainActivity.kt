@@ -35,7 +35,8 @@ class MainActivity : AppCompatActivity() {
                 ip,
                 port,
                 bluetoothDevice,
-                "69420" /*password.text.toString()*/
+                "69420"
+//                password.text.toString()
             ) { result, fatalError ->
                 when {
                     result -> {

@@ -29,26 +29,28 @@ class PasswordActivity : AppCompatActivity() {
                     .show()
             }
             else -> {
-                Channel.setPasswordChangeRequest(
-                    nameInput.text.toString(),
-                    oldPasswordInput.text.toString(),
-                    newPasswordInputFirst.text.toString()
-                ) { success ->
-                    if (success) {
-                        runOnUiThread {
-                            AlertDialog.Builder(this)
-                                .setIcon(R.drawable.ic_hotroad)
-                                .setNeutralButton("OK") { _: DialogInterface, _: Int -> finish() }
-                                .setTitle("SUCCESS")
-                                .setMessage(getString(R.string.password_success))
-                                .show()
+                thread {
+                    Channel.setPasswordChangeRequest(
+                        nameInput.text.toString(),
+                        oldPasswordInput.text.toString(),
+                        newPasswordInputFirst.text.toString()
+                    ) { success ->
+                        if (success) {
+                            runOnUiThread {
+                                AlertDialog.Builder(this)
+                                    .setIcon(R.drawable.ic_hotroad)
+                                    .setNeutralButton("OK") { _: DialogInterface, _: Int -> finish() }
+                                    .setTitle("SUCCESS")
+                                    .setMessage(getString(R.string.password_success))
+                                    .show()
+                            }
+                        } else {
+                            Snackbar.make(
+                                view,
+                                getString(R.string.password_incorrect),
+                                Snackbar.LENGTH_LONG
+                            ).show()
                         }
-                    } else {
-                        Snackbar.make(
-                            view,
-                            getString(R.string.password_incorrect),
-                            Snackbar.LENGTH_LONG
-                        ).show()
                     }
                 }
             }
