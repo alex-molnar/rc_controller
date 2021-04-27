@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import debug
 import kotlinx.android.synthetic.main.activity_controller.*
 import org.json.JSONObject
+import warn
 import kotlin.concurrent.thread
 
 
@@ -70,21 +71,35 @@ class Controller : AppCompatActivity() {
     }
 
     private fun TextView.update() {
-        val value = Channel.getDouble(idToAttributes[this.id]!!.message, 0.0)
-        this.text = getString(idToAttributes[this.id]!!.textId!!, value)
-        this.setTextColor(
-            getColor(
-                when {
-                    this.id == R.id.distanceLabel && value < 10 || this.id == R.id.speedLabel && value > 30 -> {
-                        R.color.pure_red
+        try {
+            val value = Channel.getDouble(idToAttributes[this.id]!!.message, 0.0)
+            this.text = getString(
+                idToAttributes[this.id]!!.textId!!, when (this.id) {
+                    R.id.distanceLabel -> when {
+                        value < 0 -> "0cm"
+                        value < 100 -> "${value}cm"
+                        else -> ">1m"
                     }
-                    this.id == R.id.distanceLabel && value < 25 || this.id == R.id.speedLabel && value > 20 -> {
-                        R.color.indicatorON
-                    }
-                    else -> R.color.colorBackground
+                    else -> value
                 }
             )
-        )
+
+            this.setTextColor(
+                getColor(
+                    when {
+                        this.id == R.id.distanceLabel && value < 10 || this.id == R.id.speedLabel && value > 30 -> {
+                            R.color.pure_red
+                        }
+                        this.id == R.id.distanceLabel && value < 25 || this.id == R.id.speedLabel && value > 20 -> {
+                            R.color.indicatorON
+                        }
+                        else -> R.color.colorBackground
+                    }
+                )
+            )
+        } catch (e: IndexOutOfBoundsException) {
+            warn { "IndexOutOfBoundsException happened while setting distance/speed label" }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
