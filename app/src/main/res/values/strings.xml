@@ -49,4 +49,5 @@
 
     <!-- Development Constants-->
     <string name="error">ERROR</string>
+    <string name="error_message">ERROR MESSAGE</string>
 </resources>

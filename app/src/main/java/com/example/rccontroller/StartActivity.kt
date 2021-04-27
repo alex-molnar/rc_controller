@@ -47,7 +47,7 @@ class StartActivity : AppCompatActivity() {
     private val BLUETOOTH_NAME: String = "RC_car_raspberrypi"
     private val IFACE_WIFI: String = "wlan0"
 
-    private val neededPermissions = hashMapOf<String, Int>(
+    private val neededPermissions = hashMapOf(
         ACCESS_WIFI_STATE to REQUEST_ACCESS_WIFI_STATE,
         BLUETOOTH to REQUEST_BLUETOOTH,
         ACCESS_FINE_LOCATION to REQUEST_ACCESS_FINE_LOCATION,
@@ -245,20 +245,27 @@ class StartActivity : AppCompatActivity() {
         val intentMain = Intent(this, MainActivity::class.java)
         val intentError = Intent(this, ErrorActivity::class.java)
 
-        if (searchForDevice()) {
+        if ((isNecessaryWifiPermissionsGranted || isNecessaryBTPermissionsGranted) && searchForDevice()) {
             info { "Device found successfully, launching main activity now" }
             intentMain.putExtra("IP", ip)
             intentMain.putExtra("PORT", port)
             intentMain.putExtra("DEV", bluetoothDevice)
             startActivity(intentMain)
         } else {
-
-            intentError.putExtra(
-                getString(R.string.error),
+            intentError.putIntegerArrayListExtra(
+                "attributes",
                 if (!isNecessaryWifiPermissionsGranted && !isNecessaryBTPermissionsGranted) {
-                    getString(R.string.PERMISSION_ERROR)
+                    arrayListOf(
+                        R.string.PERMISSION_ERROR,
+                        R.drawable.permission_error,
+                        R.color.permission_errorBG
+                    )
                 } else {
-                    getString(R.string.NO_DEVICES_ERROR)
+                    arrayListOf(
+                        R.string.NO_DEVICES_ERROR,
+                        R.drawable.no_device_error,
+                        R.color.errorBG
+                    )
                 }
             )
             warn { "No device found, launching error activity now" }

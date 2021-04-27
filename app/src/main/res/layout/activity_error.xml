@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/errorBG"
@@ -16,7 +17,6 @@
         android:layout_marginEnd="64dp"
         android:layout_marginBottom="256dp"
         android:gravity="center"
-        android:text="Here I will show some error that vill show up in your area I don't know what I'm writing anymore hahaha."
         android:textAlignment="center"
         android:textColor="@color/errorFont"
         android:textSize="18sp"
@@ -29,13 +29,14 @@
         android:id="@+id/imageView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginTop="12dp"
         android:layout_marginBottom="450dp"
         android:contentDescription="@string/error"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/error" />
+        app:srcCompat="@drawable/no_device_error" />
 
     <Button
         android:id="@+id/retryButton"
