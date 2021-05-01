@@ -37,7 +37,6 @@ object Channel {
     private const val DISTANCE = "distance"
     private const val SPEED = "speed"
     private val POWEROFF_MESSAGE = "POWEROFF".toByteArray(Charset.defaultCharset())
-    private val RESTART_MESSAGE = "RESTART".toByteArray(Charset.defaultCharset())
     private const val MODIFY_REQUEST = "modify"
     private const val GRANTED = "granted"
     private const val REJECTED = "rejected"
@@ -210,7 +209,7 @@ object Channel {
         btsocket?.close()
     }
 
-    fun sendTurnOffSignal(restart: Boolean) {
-        socketWriter.write(if (restart) RESTART_MESSAGE else POWEROFF_MESSAGE)
+    fun sendTurnOffSignal() {
+        socketWriter.write(POWEROFF_MESSAGE)
     }
 }

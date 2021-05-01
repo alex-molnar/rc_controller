@@ -261,9 +261,9 @@ class MainActivity : AppCompatActivity() {
             R.id.exitItem -> {
                 cleanupAndFinish()
             }
-            R.id.powerOffItem, R.id.restartItem -> {
+            R.id.powerOffItem -> {
                 thread {
-                    Channel.sendTurnOffSignal(item.itemId == R.id.restartItem)
+                    Channel.sendTurnOffSignal()
                 }
                 Thread.sleep(500)
                 cleanupAndFinish()
