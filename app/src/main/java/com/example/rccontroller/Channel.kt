@@ -29,7 +29,7 @@ object Channel {
     private const val DEVICE_NOT_AVAILABLE =
         "The device discovered is no longer available, please restart the discovery!"
     private const val ACCESS_DENIED =
-        "ACCESS DENIED! Try another password, or try to connect ot another device!"
+        "ACCESS DENIED! Available tries left: "
     private const val NEWORK_EXCEPTION =
         "Something came up during the connection! Please check if the device is still available, and restart the discovery!"
     private const val ACCESS_FINAL_DENIAL =
@@ -42,6 +42,7 @@ object Channel {
     private const val GRANTED = "granted"
     private const val REJECTED = "rejected"
     private const val FINAL_REJECTION = "final_rejection"
+    private var tries = 2
 
     private fun toHexString(hash: ByteArray?): String {
         val number = BigInteger(1, hash)
@@ -97,11 +98,12 @@ object Channel {
 
             when (socketReader.nextLine()) {
                 REJECTED -> {
-                    errorMessage = ACCESS_DENIED
+                    errorMessage = ACCESS_DENIED + tries--
                     result = false
                 }
                 FINAL_REJECTION -> {
                     errorMessage = ACCESS_FINAL_DENIAL
+                    tries = 2
                     result = false
                     fatalError = true
                     isConnectionActive = false
