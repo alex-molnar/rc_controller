@@ -6,13 +6,13 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.activity_password.*
+import kotlinx.android.synthetic.main.activity_change_pin.*
 import kotlin.concurrent.thread
 
-class PasswordActivity : AppCompatActivity() {
+class ChangePinActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_password)
+        setContentView(R.layout.activity_change_pin)
 
         thread {
             sendButton.setOnClickListener(onSendClicked)

@@ -242,7 +242,7 @@ class StartActivity : AppCompatActivity() {
             waitForResults(2)
         }
 
-        val intentMain = Intent(this, MainActivity::class.java)
+        val intentMain = Intent(this, PinActivity::class.java)
         val intentError = Intent(this, ErrorActivity::class.java)
 
         if ((isNecessaryWifiPermissionsGranted || isNecessaryBTPermissionsGranted) && searchForDevice()) {
