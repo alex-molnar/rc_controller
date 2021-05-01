@@ -48,7 +48,7 @@ class PinActivity : AppCompatActivity() {
                             AlertDialog.Builder(this)
                                 .setIcon(R.drawable.ic_hotroad)
                                 .setNeutralButton("OK") { _: DialogInterface, _: Int -> finish() }
-                                .setTitle("SUCCESS")
+                                .setTitle("❗ ERROR")
                                 .setMessage(Channel.errorMessage)
                                 .show()
                         }
