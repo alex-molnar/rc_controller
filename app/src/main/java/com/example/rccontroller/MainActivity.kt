@@ -1,5 +1,7 @@
 package com.example.rccontroller
 
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -13,6 +15,7 @@ import android.widget.TextView
 import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
 import debug
+import info
 import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONObject
 import warn
@@ -120,7 +123,23 @@ class MainActivity : AppCompatActivity() {
         )
 
         thread {
-            Channel.run()
+            Channel.run { oldVersion, latestVersion ->
+                runOnUiThread {
+                    AlertDialog.Builder(this)
+                        .setIcon(R.drawable.ic_hotroad)
+                        .setPositiveButton("OK") { _: DialogInterface, _: Int ->
+                            thread {
+                                Channel.sendUpdateRequest()
+                                Thread.sleep(1000)
+                                cleanupAndFinish()
+                            }
+                        }
+                        .setNegativeButton("Later") { _: DialogInterface, _: Int -> info { "User ignored update request" } }
+                        .setTitle("Update found!")
+                        .setMessage(getString(R.string.update_found, oldVersion, latestVersion))
+                        .show()
+                }
+            }
         }
 
         thread {

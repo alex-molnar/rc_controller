@@ -38,10 +38,15 @@ object Channel {
     private const val SPEED = "speed"
     private val POWEROFF_MESSAGE = "POWEROFF".toByteArray(Charset.defaultCharset())
     private const val MODIFY_REQUEST = "modify"
+    private val UPDATE_REQUEST = "update".toByteArray(Charset.defaultCharset())
+    private const val OLD_VERSION = "old_version"
+    private const val LATEST_VERSION = "latest_version"
     private const val GRANTED = "granted"
     private const val REJECTED = "rejected"
     private const val FINAL_REJECTION = "final_rejection"
     private var tries = 2
+    private var oldVersion: String? = null
+    private var latestVersion: String? = null
 
     private fun toHexString(hash: ByteArray?): String {
         val number = BigInteger(1, hash)
@@ -184,15 +189,22 @@ object Channel {
         return value
     }
 
-    fun run() {
+    fun run(callback: (String, String) -> Unit) {
         while (isConnectionActive) {
             try {
+                if (oldVersion != null && latestVersion != null && oldVersion != latestVersion) {
+                    callback(oldVersion!!, latestVersion!!)
+                    oldVersion = null
+                    latestVersion = null
+                }
                 val received = (JSONTokener(socketReader.nextLine()).nextValue() as JSONObject)
 
                 received.keys().forEach { key ->
                     when (key) {
                         DISTANCE, SPEED -> dataTable.put(key, received.getDouble(key))
                         MODIFY_REQUEST -> setPassworCallback(received.getBoolean(key))
+                        OLD_VERSION -> oldVersion = received.getString(key)
+                        LATEST_VERSION -> latestVersion = received.getString(key)
                         else -> dataTable.put(key, received.getBoolean(key))
                     }
                 }
@@ -211,5 +223,9 @@ object Channel {
 
     fun sendTurnOffSignal() {
         socketWriter.write(POWEROFF_MESSAGE)
+    }
+
+    fun sendUpdateRequest() {
+        socketWriter.write(UPDATE_REQUEST)
     }
 }

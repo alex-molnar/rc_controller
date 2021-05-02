@@ -50,4 +50,5 @@
     <!-- Development Constants-->
     <string name="error">ERROR</string>
     <string name="error_message">ERROR MESSAGE</string>
+    <string name="update_found">Your car uses version %s, however version %s is available to download. Do you want to update now?</string>
 </resources>
