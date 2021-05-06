@@ -39,6 +39,8 @@ class MainActivity : AppCompatActivity() {
 
     private var isActive: Boolean = true
     private var userReturned: Boolean = true
+    private var itemIndexToDisable: Int = 0
+    private var itemValueToSet: Boolean = true
 
     private lateinit var idToAttributes: HashMap<Int, ViewAttributes>
     private lateinit var views: ArrayList<View>
@@ -275,6 +277,17 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        menu?.let {
+            menu.getItem(itemIndexToDisable).isEnabled = itemValueToSet
+            menu.getItem(itemIndexToDisable).isVisible = itemValueToSet
+            menu.getItem(2).isEnabled = itemValueToSet
+            menu.getItem(2).isVisible = itemValueToSet
+        }
+
+        return super.onPrepareOptionsMenu(menu)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.exitItem -> {
@@ -293,9 +306,12 @@ class MainActivity : AppCompatActivity() {
             }
             else -> {
                 val message = idToAttributes[item.itemId]!!.message
+                itemValueToSet = Channel.getBoolean(message)
+                itemIndexToDisable = if (item.itemId == R.id.distanceKeepingItem) 0 else 1
                 thread {
                     Channel.setMessage(message, !Channel.getBoolean(message))
                 }
+                invalidateOptionsMenu()
             }
         }
         return true
@@ -314,10 +330,12 @@ class MainActivity : AppCompatActivity() {
     private val touchEvent = View.OnTouchListener { view, event ->
         val message = idToAttributes[view.id]!!.message
         if (event.action == downEvent) {
-            thread { Channel.setMessage(message, true) }
-            states.put(message, true)
-            buttonsPressed[view.id] = false
-            Handler().postDelayed({ recursiveButtonPressCheck(view.id) }, 30)
+            if (itemValueToSet || view.id == R.id.hornButton) {
+                thread { Channel.setMessage(message, true) }
+                states.put(message, true)
+                buttonsPressed[view.id] = false
+                Handler().postDelayed({ recursiveButtonPressCheck(view.id) }, 30)
+            }
         } else if (event.action == refreshEvent) {
             buttonsPressed[view.id] = true
         }
@@ -325,10 +343,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val toggleEvent = View.OnTouchListener { view, event ->
-        thread {
-            if (event.action == downEvent) {
-                view as CompoundButton
-                Channel.setMessage(idToAttributes[view.id]!!.message, !view.isChecked)
+        if (itemValueToSet || view.id != R.id.reverseSwitch) {
+            thread {
+                if (event.action == downEvent) {
+                    view as CompoundButton
+                    Channel.setMessage(idToAttributes[view.id]!!.message, !view.isChecked)
+                }
             }
         }
         false
