@@ -35,8 +35,7 @@ class PinActivity : AppCompatActivity() {
                 ip,
                 port,
                 bluetoothDevice,
-                "69420"
-//                password.text.toString()
+                password.text.toString()
             ) { result, fatalError ->
                 when {
                     result -> {
